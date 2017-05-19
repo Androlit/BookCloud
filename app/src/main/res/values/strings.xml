@@ -9,5 +9,16 @@
     <!-- facebook app keys -->
     <string name="facebook_app_id">641535632715841</string>
     <string name="fb_login_protocol_scheme">fb641535632715841</string>
+    <string name="login_or_register">Login or Register</string>
+    <string name="john_doe">John Doe</string>
+    <string name="johndoe_example_com">johndoe@example.com</string>
+    <string name="setting">Setting</string>
+    <string name="about">About</string>
+    <string name="manage_profile">Manage Profile</string>
+    <string name="history">History</string>
+    <string name="messages">Messages</string>
+    <string name="my_book">My Book</string>
+    <string name="help">Help</string>
+    <string name="profile_picture">profile picture</string>
 
 </resources>
