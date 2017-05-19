@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "537201635583",
+    "firebase_url": "https://book-cloud-b5613.firebaseio.com",
+    "project_id": "book-cloud-b5613",
+    "storage_bucket": "book-cloud-b5613.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:537201635583:android:a080fa9b9f1a8464",
+        "android_client_info": {
+          "package_name": "com.androlit.bookcloud"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "537201635583-0m6tklb9ii020cmst70ge19mkaps4cdc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.androlit.bookcloud",
+            "certificate_hash": "9ee16a02690fa1d5ddefd174d72c1c7bd1597c5d"
+          }
+        },
+        {
+          "client_id": "537201635583-jivlh05h1ke3s2d4h27rmost1ojv8blu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.androlit.bookcloud",
+            "certificate_hash": "2c3f682c5d83801cab2d54ec075e47d34e076a27"
+          }
+        },
+        {
+          "client_id": "537201635583-8hr534dicfhk7ionaackstgisu1j98ms.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAg2wDx3HdV0Z5mrxKfYsbFVod3QFrZ20"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "537201635583-8hr534dicfhk7ionaackstgisu1j98ms.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

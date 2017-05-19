@@ -5,4 +5,9 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <!-- facebook app keys -->
+    <string name="facebook_app_id">641535632715841</string>
+    <string name="fb_login_protocol_scheme">fb641535632715841</string>
+
 </resources>
