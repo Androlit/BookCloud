@@ -1,4 +1,4 @@
-package com.androlit.bookcloud;
+package com.androlit.bookcloud.view.activity;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,14 +13,22 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+
+import com.androlit.bookcloud.R;
+import com.androlit.bookcloud.view.navigator.Navigator;
+
+import butterknife.ButterKnife;
 
 public class HomeActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -39,8 +47,16 @@ public class HomeActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        setNavigationView();
+    }
+
+    private void setNavigationView() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        View navHeader = navigationView.getHeaderView(0);
+        Button login = (Button) navHeader.findViewById(R.id.btn_log_reg);
+        login.setOnClickListener(this);
     }
 
     @Override
@@ -93,10 +109,26 @@ public class HomeActivity extends AppCompatActivity
 
         } else if (id == R.id.action_about) {
 
+        } else if (id == R.id.btn_log_reg) {
+            Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show();
+            Navigator.navigateToLogin(this);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onClick(View view) {
+        final int id = view.getId();
+
+        switch (id) {
+            case R.id.btn_log_reg:
+                Navigator.navigateToLogin(this);
+                break;
+            default:
+                break;
+        }
     }
 }
