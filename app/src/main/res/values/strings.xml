@@ -27,5 +27,10 @@
     <string name="login_to_book_cloud">Login to Book Cloud</string>
     <string name="don_t_have_an_account">Don\'t have an account?</string>
     <string name="register_here">Register Here</string>
+    <string name="sign_up_for_book_cloud">Sign up for Book Cloud</string>
+    <string name="login_with_facebook">Log in with Facebook</string>
+    <string name="sign_up_with_facebook">Sign up with Facebook</string>
+    <string name="confirm_password">Comfirm Password</string>
+    <string name="sign_up">Sign Up</string>
 
 </resources>

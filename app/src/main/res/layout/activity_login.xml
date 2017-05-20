@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/fragment_login"
-        android:name="com.androlit.bookcloud.view.fragment.LogInFragment"
+        android:name="com.androlit.bookcloud.view.fragment.SignInFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout="@layout/fragment_login" />
+        tools:layout="@layout/fragment_sign_in" />
 
 </LinearLayout>
