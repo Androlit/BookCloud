@@ -33,18 +33,22 @@ public class SignInFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Toast.makeText(getContext(), "recreating", Toast.LENGTH_SHORT).show();
         View loginFragment = inflater.inflate(R.layout.fragment_sign_in, container, false);
-        initView(loginFragment);
+        bindViews(loginFragment);
+        createSignInDialogue();
         mListenerActivity = (OnRegisterClickListener) getActivity();
         return loginFragment;
     }
 
-    private void initView(View loginFragment) {
+    private void createSignInDialogue() {
+        mSignInDialogueFragment = new SignInDialogueFragment();
+        mFragmentManager = getActivity().getSupportFragmentManager();
+    }
+
+    private void bindViews(View loginFragment) {
         signInButton = (Button) loginFragment.findViewById(R.id.sign_in_with_email);
         signInButton.setOnClickListener(this);
         btnRegister = (Button) loginFragment.findViewById(R.id.btn_register);
         btnRegister.setOnClickListener(this);
-        mSignInDialogueFragment = new SignInDialogueFragment();
-        mFragmentManager = getActivity().getSupportFragmentManager();
     }
 
     @Override
