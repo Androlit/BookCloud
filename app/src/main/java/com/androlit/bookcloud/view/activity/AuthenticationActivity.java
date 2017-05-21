@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.view.fragment.SignInFragment;
-import com.androlit.bookcloud.view.fragment.SignUpFragment;
 
 import butterknife.ButterKnife;
 
@@ -18,7 +17,7 @@ import butterknife.ButterKnife;
  * It is for authentication activity.
  */
 
-public class AuthenticationActivity extends AppCompatActivity implements SignInFragment.OnRegisterClickListener {
+public class AuthenticationActivity extends AppCompatActivity {
 
     public static Intent getCallingIntent(Context context) {
         return new Intent(context, AuthenticationActivity.class);
@@ -39,24 +38,5 @@ public class AuthenticationActivity extends AppCompatActivity implements SignInF
             fragmentTransaction.add(R.id.fragment_container, signInFragment);
             fragmentTransaction.commit();
         }
-    }
-
-    @Override
-    public void onClickRegister() {
-        replaceSignInFragmentWithSignUpFragment();
-    }
-
-    private void replaceSignInFragmentWithSignUpFragment() {
-        SignUpFragment signUpFragment = new SignUpFragment();
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
-        if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) == null) {
-            fragmentTransaction.add(R.id.fragment_container, signUpFragment);
-        } else {
-            fragmentTransaction.replace(R.id.fragment_container, signUpFragment);
-        }
-
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
     }
 }

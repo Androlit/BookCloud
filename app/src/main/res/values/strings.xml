@@ -33,5 +33,7 @@
     <string name="confirm_password">Comfirm Password</string>
     <string name="sign_up">Sign Up</string>
     <string name="sign_in_to_book_cloud">Sign In to Book Cloud</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="login_here">Login Here</string>
 
 </resources>
