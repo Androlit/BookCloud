@@ -32,7 +32,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Toast.makeText(getContext(), "recreating", Toast.LENGTH_SHORT).show();
-        View loginFragment = inflater.inflate(R.layout.fragment_sign_in, container, true);
+        View loginFragment = inflater.inflate(R.layout.fragment_sign_in, container, false);
         initView(loginFragment);
         mListenerActivity = (OnRegisterClickListener) getActivity();
         return loginFragment;
@@ -56,7 +56,6 @@ public class SignInFragment extends Fragment implements View.OnClickListener {
                 break;
 
             case R.id.btn_register:
-                Toast.makeText(getContext(), "register", Toast.LENGTH_SHORT).show();
                 mListenerActivity.onClickRegister();
                 break;
 

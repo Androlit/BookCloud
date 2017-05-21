@@ -32,5 +32,6 @@
     <string name="sign_up_with_facebook">Sign up with Facebook</string>
     <string name="confirm_password">Comfirm Password</string>
     <string name="sign_up">Sign Up</string>
+    <string name="sign_in_to_book_cloud">Sign In to Book Cloud</string>
 
 </resources>
