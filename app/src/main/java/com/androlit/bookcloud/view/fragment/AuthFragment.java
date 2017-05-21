@@ -33,7 +33,7 @@ import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.common.SignInButton;
 
 
-public class SignInFragment extends Fragment implements View.OnClickListener {
+public class AuthFragment extends Fragment implements View.OnClickListener {
 
     private static final String DIALOGUE = "LOGIN_DIALOGUE";
     private SignInDialogueFragment mSignInDialogueFragment;
@@ -51,7 +51,7 @@ public class SignInFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Toast.makeText(getContext(), "recreating", Toast.LENGTH_SHORT).show();
-        View loginFragment = inflater.inflate(R.layout.fragment_sign_in, container, false);
+        View loginFragment = inflater.inflate(R.layout.fragment_auth, container, false);
         bindViews(loginFragment);
         createSignInDialogue();
         return loginFragment;

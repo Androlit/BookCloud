@@ -8,7 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 import com.androlit.bookcloud.R;
-import com.androlit.bookcloud.view.fragment.SignInFragment;
+import com.androlit.bookcloud.view.fragment.AuthFragment;
 
 import butterknife.ButterKnife;
 
@@ -26,16 +26,16 @@ public class AuthenticationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_authentication);
         ButterKnife.bind(this);
         addLoginFragment();
     }
 
     private void addLoginFragment() {
-        SignInFragment signInFragment = new SignInFragment();
+        AuthFragment authFragment = new AuthFragment();
         if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) == null) {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.fragment_container, signInFragment);
+            fragmentTransaction.add(R.id.fragment_container, authFragment);
             fragmentTransaction.commit();
         }
     }
