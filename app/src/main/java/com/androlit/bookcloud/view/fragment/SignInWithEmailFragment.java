@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+
 package com.androlit.bookcloud.view.fragment;
 
 import android.os.Bundle;
@@ -24,10 +25,10 @@ import android.view.ViewGroup;
 
 import com.androlit.bookcloud.R;
 
-public class SignUpWithEmailFragment extends Fragment {
+public class SignInWithEmailFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_sign_up_with_email, container, false);
+        return inflater.inflate(R.layout.fragment_sign_in_wtih_email, container, false);
     }
 }

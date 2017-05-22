@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
- *
+ * Copyright (C) 2017 Book Cloud
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,13 +13,13 @@
  * limitations under the License.
  */
 
+
 package com.androlit.bookcloud.view.fragment;
 
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,17 +34,16 @@ import com.google.android.gms.common.SignInButton;
 
 public class AuthFragment extends Fragment implements View.OnClickListener {
 
-    private static final String DIALOGUE = "LOGIN_DIALOGUE";
-    private SignInDialogueFragment mSignInDialogueFragment;
-    private FragmentManager mFragmentManager;
 
     // ui elements
     private Button signInButton;
+    private Button signUpButton;
     private Button btnRegister;
     private SignInButton mBtnGoogleSignIn;
     private LoginButton mBtnFacebookLogin;
     private TextView mTvAuthTitle;
     private TextView mTvAuthMessage;
+    private mAuthListenerActivity mAuthListenerActivity;
 
     @Nullable
     @Override
@@ -53,26 +51,23 @@ public class AuthFragment extends Fragment implements View.OnClickListener {
         Toast.makeText(getContext(), "recreating", Toast.LENGTH_SHORT).show();
         View loginFragment = inflater.inflate(R.layout.fragment_auth, container, false);
         bindViews(loginFragment);
-        createSignInDialogue();
+        mAuthListenerActivity = (mAuthListenerActivity) getActivity();
         return loginFragment;
     }
 
-    private void createSignInDialogue() {
-        mSignInDialogueFragment = new SignInDialogueFragment();
-        mFragmentManager = getActivity().getSupportFragmentManager();
-    }
-
-    private void bindViews(View loginFragment) {
-        signInButton = (Button) loginFragment.findViewById(R.id.sign_in_with_email);
+    private void bindViews(View authFragment) {
+        signInButton = (Button) authFragment.findViewById(R.id.sign_in_with_email);
         signInButton.setOnClickListener(this);
-        btnRegister = (Button) loginFragment.findViewById(R.id.btn_register);
+        signUpButton = (Button) authFragment.findViewById(R.id.sign_up_with_email);
+        signUpButton.setOnClickListener(this);
+        btnRegister = (Button) authFragment.findViewById(R.id.btn_register);
         btnRegister.setOnClickListener(this);
-        mBtnFacebookLogin = (LoginButton) loginFragment.findViewById(R.id.btn_facebook_login);
+        mBtnFacebookLogin = (LoginButton) authFragment.findViewById(R.id.btn_facebook_login);
         mBtnFacebookLogin.setOnClickListener(this);
-        mBtnGoogleSignIn = (SignInButton) loginFragment.findViewById(R.id.btn_google_login);
+        mBtnGoogleSignIn = (SignInButton) authFragment.findViewById(R.id.btn_google_login);
         mBtnGoogleSignIn.setOnClickListener(this);
-        mTvAuthTitle = (TextView) loginFragment.findViewById(R.id.tv_auth_title);
-        mTvAuthMessage = (TextView) loginFragment.findViewById(R.id.tv_auth_message);
+        mTvAuthTitle = (TextView) authFragment.findViewById(R.id.tv_auth_title);
+        mTvAuthMessage = (TextView) authFragment.findViewById(R.id.tv_auth_message);
     }
 
     @Override
@@ -80,8 +75,10 @@ public class AuthFragment extends Fragment implements View.OnClickListener {
         int id = view.getId();
         switch (id) {
             case R.id.sign_in_with_email:
-                mSignInDialogueFragment.show(mFragmentManager, DIALOGUE);
+                mAuthListenerActivity.onSignInClicked();
                 break;
+            case R.id.sign_up_with_email:
+                mAuthListenerActivity.onSignUpClicked();
 
             case R.id.btn_register:
                 toggleViews();
@@ -99,7 +96,13 @@ public class AuthFragment extends Fragment implements View.OnClickListener {
     }
 
     private void toggleViews() {
-
+        if (signInButton.getVisibility() != View.GONE) {
+            signInButton.setVisibility(View.GONE);
+            signUpButton.setVisibility(View.VISIBLE);
+        } else {
+            signUpButton.setVisibility(View.GONE);
+            signInButton.setVisibility(View.VISIBLE);
+        }
         if(mTvAuthTitle.getText().toString().toLowerCase().equals(
                 getString(R.string.sign_in_to_book_cloud).toLowerCase())){
             mTvAuthTitle.setText(getString(R.string.sign_up_for_book_cloud));
@@ -135,5 +138,11 @@ public class AuthFragment extends Fragment implements View.OnClickListener {
             signInButton.setText(getString(R.string.sign_in));
         }
 
+    }
+
+    public interface mAuthListenerActivity {
+        void onSignInClicked();
+
+        void onSignUpClicked();
     }
 }
