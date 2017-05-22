@@ -42,5 +42,8 @@ dependencies {
     // Google play services
     compile 'com.google.android.gms:play-services-auth:10.2.6'
 
+    // Firebase authentication
+    compile 'com.google.firebase:firebase-auth:10.2.6'
+
     testCompile 'junit:junit:4.12'
 }

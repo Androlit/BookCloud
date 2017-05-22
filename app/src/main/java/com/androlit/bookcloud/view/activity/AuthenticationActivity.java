@@ -82,4 +82,6 @@ public class AuthenticationActivity extends AppCompatActivity implements
     public void onSignUpClicked() {
         addFragment(SIGN_UP_FRAGMENT);
     }
+
+
 }
