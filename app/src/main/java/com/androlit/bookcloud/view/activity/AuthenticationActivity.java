@@ -31,7 +31,8 @@ import com.androlit.bookcloud.view.fragment.SignUpWithEmailFragment;
 import butterknife.ButterKnife;
 
 public class AuthenticationActivity extends AppCompatActivity implements
-        AuthFragment.mAuthListenerActivity {
+        AuthFragment.mAuthListenerActivity,
+        SignUpWithEmailFragment.OnSignUpConfirmedListener {
 
     private static int AUTH_FRAGMENT = 101;
     private static int SIGN_IN_FRAGMENT = 201;
@@ -84,4 +85,8 @@ public class AuthenticationActivity extends AppCompatActivity implements
     }
 
 
+    @Override
+    public void signUpSuccessful() {
+        // TODO: user signed up successful
+    }
 }

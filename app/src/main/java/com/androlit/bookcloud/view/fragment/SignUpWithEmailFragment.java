@@ -39,11 +39,14 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
     private EditText mEditTextFullName;
     private SignUpUserModel mUser;
 
+    private OnSignUpConfirmedListener onSignUpConfirmedListener;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View signUpView = inflater.inflate(R.layout.fragment_sign_up_with_email, container, false);
         bindViews(signUpView);
+        onSignUpConfirmedListener = (OnSignUpConfirmedListener) getActivity();
         return signUpView;
     }
 
@@ -63,7 +66,9 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
             case R.id.btn_sign_up:
                 createUserFromForm();
                 if (validateSignUpForm()) {
-                    // TODO: Sign up user
+                    // TODO: Sign up user in this fragment
+                    // then call activity's listener
+                    onSignUpConfirmedListener.signUpSuccessful();
                 }
                 break;
             default:
@@ -109,7 +114,7 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
     private boolean verifyPassword(String password) {
         if (!password.equals(mEditTextConfirmPassword.getText().toString())) {
             mEditTextConfirmPassword.setError("Given password doesn't match");
-            return true;
+            return false;
         }
 
         if (password.length() < 6) {
@@ -117,6 +122,10 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
             return false;
         }
 
-        return false;
+        return true;
+    }
+
+    public interface OnSignUpConfirmedListener {
+        void signUpSuccessful();
     }
 }
