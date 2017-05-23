@@ -16,6 +16,7 @@
 
 package com.androlit.bookcloud.view.navigator;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
@@ -24,13 +25,14 @@ import com.androlit.bookcloud.view.activity.AuthenticationActivity;
 
 public final class Navigator {
 
+    public static int AUTH_REQUEST = 201;
     /**
      * this method will navigate to AuthenticationActivity
      *
      * @param context is for setting context
      */
-    public static void navigateToLogin(Context context) {
+    public static void navigateToAuth(Context context) {
         Intent intent = AuthenticationActivity.getCallingIntent(context);
-        context.startActivity(intent);
+        ((Activity) context).startActivityForResult(intent, AUTH_REQUEST);
     }
 }

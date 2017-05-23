@@ -15,6 +15,7 @@
 
 package com.androlit.bookcloud.view.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -87,6 +88,8 @@ public class AuthenticationActivity extends AppCompatActivity implements
 
     @Override
     public void signUpSuccessful() {
-        // TODO: user signed up successful
+        // if need to return data pass using intent
+        setResult(Activity.RESULT_OK);
+        finish();
     }
 }

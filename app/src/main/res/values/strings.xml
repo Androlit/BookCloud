@@ -36,5 +36,8 @@
     <string name="already_have_an_account">Already have an account?</string>
     <string name="login_here">Login Here</string>
     <string name="full_name">Full Name</string>
+    <string name="log_out">Log Out</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="action_sign_out">Sign Out</string>
 
 </resources>

@@ -16,6 +16,7 @@
 package com.androlit.bookcloud.view.fragment;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -27,6 +28,11 @@ import android.widget.EditText;
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.view.data.model.SignUpUserModel;
 import com.androlit.bookcloud.view.utils.Validator;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 public class SignUpWithEmailFragment extends Fragment implements View.OnClickListener {
 
@@ -37,11 +43,20 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
     private EditText mEditTextFullName;
     private SignUpUserModel mUser;
 
+    private FirebaseAuth mAuth;
+
     private OnSignUpConfirmedListener onSignUpConfirmedListener;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
+    }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View signUpView = inflater.inflate(R.layout.fragment_sign_up_with_email, container, false);
         bindViews(signUpView);
         onSignUpConfirmedListener = (OnSignUpConfirmedListener) getActivity();
@@ -64,9 +79,7 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
             case R.id.btn_sign_up:
                 createUserFromForm();
                 if (validateSignUpForm()) {
-                    // TODO: Sign up user in this fragment
-                    // then call activity's listener
-                    onSignUpConfirmedListener.signUpSuccessful();
+                    signUpUserWithEmail();
                 }
                 break;
             default:
@@ -88,6 +101,7 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
         }
 
         if (!Validator.verifyFullName(mUser.getFullName())) {
+            mEditTextFullName.setError("Enter your full name");
             return false;
         }
 
@@ -105,8 +119,25 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
         return true;
     }
 
+    /**
+     * this method will sign up user to firebase using email and password
+     * and notify if user already exists with this email
+     */
     private void signUpUserWithEmail() {
-
+        mAuth.createUserWithEmailAndPassword(mUser.getEmail(), mUser.getPassword())
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (!task.isSuccessful()) {
+                            if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                                // user already exist with this email
+                                mEditTextEmail.setError("A User already exist with this email!");
+                            }
+                        } else {
+                            onSignUpConfirmedListener.signUpSuccessful();
+                        }
+                    }
+                });
     }
 
     public interface OnSignUpConfirmedListener {

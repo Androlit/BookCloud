@@ -28,7 +28,6 @@ public final class Validator {
 
     public static boolean verifyFullName(String name) {
         return !TextUtils.isEmpty(name);
-
     }
 
     public static boolean verifyPassword(String password) {
@@ -38,6 +37,5 @@ public final class Validator {
 
     public static boolean matchPasswords(String password, String confirmPassword) {
         return password.equals(confirmPassword);
-
     }
 }

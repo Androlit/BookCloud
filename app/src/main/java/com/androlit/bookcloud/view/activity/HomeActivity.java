@@ -15,6 +15,7 @@
 
 package com.androlit.bookcloud.view.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -29,15 +30,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.view.navigator.Navigator;
+import com.google.firebase.auth.FirebaseAuth;
 
 import butterknife.ButterKnife;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+
+    private FirebaseAuth mAuth;
+
+    private Button mSignIn;
+    private TextView mTvEmail;
+    private TextView mTvFullName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +71,8 @@ public class HomeActivity extends AppCompatActivity
         toggle.syncState();
 
         setNavigationView();
+
+        mAuth = FirebaseAuth.getInstance();
     }
 
     private void setNavigationView() {
@@ -70,8 +80,10 @@ public class HomeActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         View navHeader = navigationView.getHeaderView(0);
-        Button login = (Button) navHeader.findViewById(R.id.btn_log_reg);
-        login.setOnClickListener(this);
+        mSignIn = (Button) navHeader.findViewById(R.id.btn_log_reg);
+        mSignIn.setOnClickListener(this);
+        mTvEmail = (TextView) navHeader.findViewById(R.id.text_user_identity);
+        mTvFullName = (TextView) navHeader.findViewById(R.id.text_user_full_name);
     }
 
     @Override
@@ -99,8 +111,9 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_sign_out) {
+            updateNavHeader();
+            signOutUser();
         }
 
         return super.onOptionsItemSelected(item);
@@ -113,7 +126,7 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_my_books) {
-            // Handle the camera action
+
         } else if (id == R.id.action_messages) {
 
         } else if (id == R.id.action_history) {
@@ -124,9 +137,6 @@ public class HomeActivity extends AppCompatActivity
 
         } else if (id == R.id.action_about) {
 
-        } else if (id == R.id.btn_log_reg) {
-            Toast.makeText(this, "Hello", Toast.LENGTH_SHORT).show();
-            Navigator.navigateToLogin(this);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -140,10 +150,41 @@ public class HomeActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.btn_log_reg:
-                Navigator.navigateToLogin(this);
+                Navigator.navigateToAuth(this);
                 break;
             default:
                 break;
+        }
+    }
+
+    private void signOutUser() {
+        mAuth.signOut();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Navigator.AUTH_REQUEST && resultCode == RESULT_OK) {
+            updateNavHeader();
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void updateNavHeader() {
+        if (mSignIn.getVisibility() == View.VISIBLE) {
+            mSignIn.setVisibility(View.GONE);
+
+            if (mAuth.getCurrentUser().getEmail() != null)
+                mTvEmail.setText(mAuth.getCurrentUser().getEmail());
+            mTvEmail.setVisibility(View.VISIBLE);
+
+            if (mAuth.getCurrentUser().getDisplayName() != null)
+                mTvFullName.setText(mAuth.getCurrentUser().getDisplayName());
+            mTvFullName.setVisibility(View.VISIBLE);
+        } else {
+            mTvEmail.setVisibility(View.GONE);
+            mTvFullName.setVisibility(View.GONE);
+            mSignIn.setVisibility(View.VISIBLE);
         }
     }
 }
