@@ -18,7 +18,6 @@ package com.androlit.bookcloud.view.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +26,7 @@ import android.widget.EditText;
 
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.view.data.model.SignUpUserModel;
-
-import java.util.regex.Pattern;
+import com.androlit.bookcloud.view.utils.Validator;
 
 public class SignUpWithEmailFragment extends Fragment implements View.OnClickListener {
 
@@ -84,45 +82,31 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
     }
 
     private boolean validateSignUpForm() {
-        if (!verifyEmail(mUser.getEmail())) {
+        if (!Validator.verifyEmail(mUser.getEmail())) {
             mEditTextEmail.setError("Doesn't look like an email");
             return false;
         }
 
-        if (!verifyFullName(mUser.getFullName())) {
+        if (!Validator.verifyFullName(mUser.getFullName())) {
             return false;
         }
 
-        return verifyPassword(mUser.getPassword());
-
-    }
-
-    private boolean verifyEmail(String email) {
-        Pattern pattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-        return pattern.matcher(email).find();
-    }
-
-    private boolean verifyFullName(String name) {
-        if (TextUtils.isEmpty(name)) {
-            mEditTextFullName.setError("Write your full name");
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean verifyPassword(String password) {
-        if (!password.equals(mEditTextConfirmPassword.getText().toString())) {
-            mEditTextConfirmPassword.setError("Given password doesn't match");
-            return false;
-        }
-
-        if (password.length() < 6) {
+        if (!Validator.verifyPassword(mUser.getPassword())) {
             mEditTextPassword.setError("Minimum 6 chars password");
             return false;
         }
 
+        if (!Validator.matchPasswords(mUser.getPassword(),
+                mEditTextConfirmPassword.getText().toString())) {
+            mEditTextConfirmPassword.setError("Two passwords are not same");
+            return false;
+        }
+
         return true;
+    }
+
+    private void signUpUserWithEmail() {
+
     }
 
     public interface OnSignUpConfirmedListener {
