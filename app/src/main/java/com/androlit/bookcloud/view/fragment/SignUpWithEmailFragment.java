@@ -15,6 +15,7 @@
 
 package com.androlit.bookcloud.view.fragment;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -47,6 +48,8 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
 
     private OnSignUpConfirmedListener onSignUpConfirmedListener;
 
+    private ProgressDialog mProgressDialog;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +67,7 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
     }
 
     private void bindViews(View signUpView) {
+        mProgressDialog = new ProgressDialog(getContext());
         mBtnSignUp = (Button) signUpView.findViewById(R.id.btn_sign_up);
         mBtnSignUp.setOnClickListener(this);
         mEditTextEmail = (EditText) signUpView.findViewById(R.id.edit_text_sign_up_email);
@@ -124,10 +128,12 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
      * and notify if user already exists with this email
      */
     private void signUpUserWithEmail() {
+        showProgressDialog("Signing Up");
         mAuth.createUserWithEmailAndPassword(mUser.getEmail(), mUser.getPassword())
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        hideProgressDialog();
                         if (!task.isSuccessful()) {
                             if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                                 // user already exist with this email
@@ -138,6 +144,18 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
                         }
                     }
                 });
+    }
+
+
+    private void showProgressDialog(String msg) {
+        mProgressDialog.setMessage(msg);
+        mProgressDialog.show();
+    }
+
+    private void hideProgressDialog() {
+        if (mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
     }
 
     public interface OnSignUpConfirmedListener {
