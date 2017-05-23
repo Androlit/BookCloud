@@ -27,13 +27,16 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.androlit.bookcloud.R;
-import com.androlit.bookcloud.view.data.model.SignUpUserModel;
-import com.androlit.bookcloud.view.utils.Validator;
+import com.androlit.bookcloud.data.model.AuthUserModel;
+import com.androlit.bookcloud.utils.Validator;
+import com.androlit.bookcloud.view.listeners.SignUpConfirmedListener;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class SignUpWithEmailFragment extends Fragment implements View.OnClickListener {
 
@@ -42,11 +45,11 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
     private EditText mEditTextPassword;
     private EditText mEditTextConfirmPassword;
     private EditText mEditTextFullName;
-    private SignUpUserModel mUser;
+    private AuthUserModel mUser;
 
     private FirebaseAuth mAuth;
 
-    private OnSignUpConfirmedListener onSignUpConfirmedListener;
+    private SignUpConfirmedListener onSignUpConfirmedListener;
 
     private ProgressDialog mProgressDialog;
 
@@ -62,7 +65,7 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
                              @Nullable Bundle savedInstanceState) {
         View signUpView = inflater.inflate(R.layout.fragment_sign_up_with_email, container, false);
         bindViews(signUpView);
-        onSignUpConfirmedListener = (OnSignUpConfirmedListener) getActivity();
+        onSignUpConfirmedListener = (SignUpConfirmedListener) getActivity();
         return signUpView;
     }
 
@@ -92,7 +95,7 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
     }
 
     private void createUserFromForm() {
-        mUser = new SignUpUserModel();
+        mUser = new AuthUserModel();
         mUser.setEmail(mEditTextEmail.getText().toString());
         mUser.setFullName(mEditTextFullName.getText().toString());
         mUser.setPassword(mEditTextPassword.getText().toString());
@@ -129,6 +132,13 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
      */
     private void signUpUserWithEmail() {
         showProgressDialog("Signing Up");
+
+        // build display name change request for new user
+        final UserProfileChangeRequest profileChangeRequest =
+                new UserProfileChangeRequest.Builder()
+                        .setDisplayName(mUser.getFullName())
+                        .build();
+
         mAuth.createUserWithEmailAndPassword(mUser.getEmail(), mUser.getPassword())
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -140,7 +150,13 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
                                 mEditTextEmail.setError("A User already exist with this email!");
                             }
                         } else {
-                            onSignUpConfirmedListener.signUpSuccessful();
+                            mAuth.getCurrentUser().updateProfile(profileChangeRequest)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            onSignUpConfirmedListener.onSignUpSuccess();
+                                        }
+                                    });
                         }
                     }
                 });
@@ -156,9 +172,5 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
         if (mProgressDialog.isShowing()) {
             mProgressDialog.dismiss();
         }
-    }
-
-    public interface OnSignUpConfirmedListener {
-        void signUpSuccessful();
     }
 }

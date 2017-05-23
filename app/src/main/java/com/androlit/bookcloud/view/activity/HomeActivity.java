@@ -87,6 +87,12 @@ public class HomeActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        checkIfUserSignedIn();
+    }
+
+    @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -112,7 +118,6 @@ public class HomeActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_sign_out) {
-            updateNavHeader();
             signOutUser();
         }
 
@@ -157,21 +162,28 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
+    private void checkIfUserSignedIn() {
+        if (mAuth.getCurrentUser() != null) {
+            updateNavHeader(true);
+        }
+    }
+
     private void signOutUser() {
         mAuth.signOut();
+        updateNavHeader(false);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Navigator.AUTH_REQUEST && resultCode == RESULT_OK) {
-            updateNavHeader();
+            checkIfUserSignedIn();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
-    private void updateNavHeader() {
-        if (mSignIn.getVisibility() == View.VISIBLE) {
+    private void updateNavHeader(boolean signedIn) {
+        if (mSignIn.getVisibility() == View.VISIBLE && signedIn) {
             mSignIn.setVisibility(View.GONE);
 
             if (mAuth.getCurrentUser().getEmail() != null)
@@ -181,7 +193,7 @@ public class HomeActivity extends AppCompatActivity
             if (mAuth.getCurrentUser().getDisplayName() != null)
                 mTvFullName.setText(mAuth.getCurrentUser().getDisplayName());
             mTvFullName.setVisibility(View.VISIBLE);
-        } else {
+        } else if (!signedIn) {
             mTvEmail.setVisibility(View.GONE);
             mTvFullName.setVisibility(View.GONE);
             mSignIn.setVisibility(View.VISIBLE);

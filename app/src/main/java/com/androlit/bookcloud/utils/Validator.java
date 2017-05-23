@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.androlit.bookcloud.view.utils;
+package com.androlit.bookcloud.utils;
 
 import android.text.TextUtils;
 
