@@ -30,7 +30,7 @@ import android.widget.EditText;
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.data.model.AuthUserModel;
 import com.androlit.bookcloud.utils.Validator;
-import com.androlit.bookcloud.view.listeners.SignInConfirmedListener;
+import com.androlit.bookcloud.view.listeners.AuthSuccessListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -48,7 +48,7 @@ public class SignInWithEmailFragment extends Fragment implements View.OnClickLis
     private EditText mEditTextPassword;
     private ProgressDialog mProgressDialog;
 
-    private SignInConfirmedListener mSignInConfirmedListener;
+    private AuthSuccessListener mSignInConfirmedListener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,7 +61,7 @@ public class SignInWithEmailFragment extends Fragment implements View.OnClickLis
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View signInView = inflater.inflate(R.layout.fragment_sign_in_wtih_email, container, false);
         bindViews(signInView);
-        mSignInConfirmedListener = (SignInConfirmedListener) getActivity();
+        mSignInConfirmedListener = (AuthSuccessListener) getActivity();
         return signInView;
     }
 
@@ -117,10 +117,10 @@ public class SignInWithEmailFragment extends Fragment implements View.OnClickLis
                         if (!task.isSuccessful()) {
                             if (task.getException() instanceof FirebaseAuthInvalidUserException) {
                                 // no user exist with this email , offer user to sign up
-                                mEditTextEmail.setText("This email is not registered");
+                                mEditTextEmail.setError("This email is not registered");
                             }
                         } else {
-                            mSignInConfirmedListener.onSignInSuccess();
+                            mSignInConfirmedListener.onAuthSuccess();
                         }
                     }
                 });
@@ -139,9 +139,5 @@ public class SignInWithEmailFragment extends Fragment implements View.OnClickLis
         }
 
         return true;
-    }
-
-    public interface OnSignInConfirmedListener {
-        void signInSuccessful();
     }
 }

@@ -17,9 +17,15 @@
 package com.androlit.bookcloud.view.fragment;
 
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,12 +34,28 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androlit.bookcloud.R;
+import com.androlit.bookcloud.view.listeners.AuthSuccessListener;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 
-public class AuthFragment extends Fragment implements View.OnClickListener {
+public class AuthFragment extends Fragment implements View.OnClickListener,
+        GoogleApiClient.OnConnectionFailedListener {
 
+    private static int RC_GOOGLE_AUTH = 201;
 
     // ui elements
     private Button signInButton;
@@ -43,7 +65,31 @@ public class AuthFragment extends Fragment implements View.OnClickListener {
     private LoginButton mBtnFacebookLogin;
     private TextView mTvAuthTitle;
     private TextView mTvAuthMessage;
-    private mAuthListenerActivity mAuthListenerActivity;
+    private AuthEmailStateListener mAuthListenerActivity;
+    private GoogleApiClient mGoogleApiClient;
+    private FirebaseAuth mAuth;
+    private AuthSuccessListener mAuthSuccessListener;
+    private ProgressDialog mProgressDialog;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
+        initGoogleClient();
+    }
+
+    private void initGoogleClient() {
+        GoogleSignInOptions gso = new GoogleSignInOptions
+                .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleApiClient = new GoogleApiClient
+                .Builder(getContext())
+                .enableAutoManage(getActivity(), this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+    }
 
     @Nullable
     @Override
@@ -51,7 +97,8 @@ public class AuthFragment extends Fragment implements View.OnClickListener {
         Toast.makeText(getContext(), "recreating", Toast.LENGTH_SHORT).show();
         View loginFragment = inflater.inflate(R.layout.fragment_auth, container, false);
         bindViews(loginFragment);
-        mAuthListenerActivity = (mAuthListenerActivity) getActivity();
+        mAuthListenerActivity = (AuthEmailStateListener) getActivity();
+        mAuthSuccessListener = (AuthSuccessListener) getActivity();
         return loginFragment;
     }
 
@@ -68,6 +115,7 @@ public class AuthFragment extends Fragment implements View.OnClickListener {
         mBtnGoogleSignIn.setOnClickListener(this);
         mTvAuthTitle = (TextView) authFragment.findViewById(R.id.tv_auth_title);
         mTvAuthMessage = (TextView) authFragment.findViewById(R.id.tv_auth_message);
+        mProgressDialog = new ProgressDialog(getContext());
     }
 
     @Override
@@ -88,11 +136,60 @@ public class AuthFragment extends Fragment implements View.OnClickListener {
                 break;
 
             case R.id.btn_google_login:
+                authenticateUsingGoogleAccount();
                 break;
 
             default:
                 break;
         }
+    }
+
+    private void authenticateUsingGoogleAccount() {
+        Intent googleSignInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(googleSignInIntent, RC_GOOGLE_AUTH);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == RC_GOOGLE_AUTH && resultCode == Activity.RESULT_OK) {
+            Log.i("FRAGMENT", "GOT IT");
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleGoogleSignInResult(result);
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void handleGoogleSignInResult(GoogleSignInResult result) {
+        if (result.isSuccess()) {
+            signInFirebaseUsingGoogle(result.getSignInAccount());
+        } else {
+            Snackbar.make(btnRegister, "Google sign in failed", Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    private void signInFirebaseUsingGoogle(GoogleSignInAccount googleAccount) {
+        showProgressDialog("Configuring account for Book Cloud");
+        AuthCredential credential = GoogleAuthProvider
+                .getCredential(googleAccount.getIdToken(), null);
+
+        // sign in firebase
+        mAuth.signInWithCredential(credential).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                hideProgressDialog();
+                if (!task.isSuccessful()) {
+                    if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                        // TODO: handle duplicate account
+                        Snackbar.make(btnRegister, "This account conflicts with an existing account!"
+                                , Snackbar.LENGTH_LONG).show();
+                    }
+                } else {
+                    Log.i("FRAGMENT", "GOT IT 2");
+                    mAuthSuccessListener.onAuthSuccess();
+                }
+            }
+        });
     }
 
     private void toggleViews() {
@@ -140,7 +237,23 @@ public class AuthFragment extends Fragment implements View.OnClickListener {
 
     }
 
-    public interface mAuthListenerActivity {
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    private void showProgressDialog(String msg) {
+        mProgressDialog.setMessage(msg);
+        mProgressDialog.show();
+    }
+
+    private void hideProgressDialog() {
+        if (mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+    }
+
+    public interface AuthEmailStateListener {
         void onSignInClicked();
 
         void onSignUpClicked();

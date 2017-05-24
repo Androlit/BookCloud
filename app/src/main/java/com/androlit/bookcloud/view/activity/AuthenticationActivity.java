@@ -28,15 +28,13 @@ import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.view.fragment.AuthFragment;
 import com.androlit.bookcloud.view.fragment.SignInWithEmailFragment;
 import com.androlit.bookcloud.view.fragment.SignUpWithEmailFragment;
-import com.androlit.bookcloud.view.listeners.SignInConfirmedListener;
-import com.androlit.bookcloud.view.listeners.SignUpConfirmedListener;
+import com.androlit.bookcloud.view.listeners.AuthSuccessListener;
 
 import butterknife.ButterKnife;
 
 public class AuthenticationActivity extends AppCompatActivity implements
-        AuthFragment.mAuthListenerActivity,
-        SignUpConfirmedListener,
-        SignInConfirmedListener {
+        AuthFragment.AuthEmailStateListener,
+        AuthSuccessListener {
 
     private static int AUTH_FRAGMENT = 101;
     private static int SIGN_IN_FRAGMENT = 201;
@@ -90,14 +88,7 @@ public class AuthenticationActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onSignUpSuccess() {
-        // if need to return data pass using intent
-        setResult(Activity.RESULT_OK);
-        finish();
-    }
-
-    @Override
-    public void onSignInSuccess() {
+    public void onAuthSuccess() {
         // if need to return data pass using intent
         setResult(Activity.RESULT_OK);
         finish();

@@ -45,6 +45,7 @@ dependencies {
     // Firebase authentication
     compile 'com.google.firebase:firebase-auth:10.2.6'
 
+
     testCompile 'junit:junit:4.12'
 }
 

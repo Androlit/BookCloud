@@ -29,7 +29,7 @@ import android.widget.EditText;
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.data.model.AuthUserModel;
 import com.androlit.bookcloud.utils.Validator;
-import com.androlit.bookcloud.view.listeners.SignUpConfirmedListener;
+import com.androlit.bookcloud.view.listeners.AuthSuccessListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -49,7 +49,7 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
 
     private FirebaseAuth mAuth;
 
-    private SignUpConfirmedListener onSignUpConfirmedListener;
+    private AuthSuccessListener onSignUpConfirmedListener;
 
     private ProgressDialog mProgressDialog;
 
@@ -65,7 +65,7 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
                              @Nullable Bundle savedInstanceState) {
         View signUpView = inflater.inflate(R.layout.fragment_sign_up_with_email, container, false);
         bindViews(signUpView);
-        onSignUpConfirmedListener = (SignUpConfirmedListener) getActivity();
+        onSignUpConfirmedListener = (AuthSuccessListener) getActivity();
         return signUpView;
     }
 
@@ -154,7 +154,7 @@ public class SignUpWithEmailFragment extends Fragment implements View.OnClickLis
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            onSignUpConfirmedListener.onSignUpSuccess();
+                                            onSignUpConfirmedListener.onAuthSuccess();
                                         }
                                     });
                         }

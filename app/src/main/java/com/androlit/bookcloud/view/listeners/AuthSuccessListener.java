@@ -14,6 +14,6 @@
  */
 package com.androlit.bookcloud.view.listeners;
 
-public interface SignInConfirmedListener {
-    void onSignInSuccess();
+public interface AuthSuccessListener {
+    void onAuthSuccess();
 }
