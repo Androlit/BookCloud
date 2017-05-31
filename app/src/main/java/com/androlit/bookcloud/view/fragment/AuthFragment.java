@@ -35,6 +35,11 @@ import android.widget.Toast;
 
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.view.listeners.AuthSuccessListener;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -47,6 +52,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -55,6 +61,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 public class AuthFragment extends Fragment implements View.OnClickListener,
         GoogleApiClient.OnConnectionFailedListener {
 
+    private static final String TAG = AuthFragment.class.getName();
     private static int RC_GOOGLE_AUTH = 201;
 
     // ui elements
@@ -70,6 +77,7 @@ public class AuthFragment extends Fragment implements View.OnClickListener,
     private FirebaseAuth mAuth;
     private AuthSuccessListener mAuthSuccessListener;
     private ProgressDialog mProgressDialog;
+    private CallbackManager mCallbackManager;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -99,7 +107,74 @@ public class AuthFragment extends Fragment implements View.OnClickListener,
         bindViews(loginFragment);
         mAuthListenerActivity = (AuthEmailStateListener) getActivity();
         mAuthSuccessListener = (AuthSuccessListener) getActivity();
+
+        // Initialize Facebook Login button
+        mCallbackManager = CallbackManager.Factory.create();
+        LoginButton loginButton = (LoginButton) loginFragment.findViewById(R.id.btn_facebook_login);
+        loginButton.setReadPermissions("email", "public_profile");
+        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(TAG, "facebook:onSuccess:" + loginResult);
+                handleFacebookAccessToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+            }
+        });
         return loginFragment;
+    }
+
+    private void toggleViews() {
+        if (signInButton.getVisibility() != View.GONE) {
+            signInButton.setVisibility(View.GONE);
+            signUpButton.setVisibility(View.VISIBLE);
+        } else {
+            signUpButton.setVisibility(View.GONE);
+            signInButton.setVisibility(View.VISIBLE);
+        }
+        if (mTvAuthTitle.getText().toString().toLowerCase().equals(
+                getString(R.string.sign_in_to_book_cloud).toLowerCase())) {
+            mTvAuthTitle.setText(getString(R.string.sign_up_for_book_cloud));
+        } else {
+            mTvAuthTitle.setText(getString(R.string.sign_in_to_book_cloud));
+        }
+
+        if (mBtnFacebookLogin.getText().toString().toLowerCase().equals(
+                getString(R.string.login_with_facebook).toLowerCase())) {
+            mBtnFacebookLogin.setText(getString(R.string.sign_up_with_facebook));
+        } else {
+            mBtnFacebookLogin.setText(getString(R.string.login_with_facebook));
+        }
+
+        if (mTvAuthMessage.getText().toString().toLowerCase().equals(
+                getString(R.string.don_t_have_an_account).toLowerCase())) {
+            mTvAuthMessage.setText(getString(R.string.already_have_an_account));
+        } else {
+            mTvAuthMessage.setText(getString(R.string.don_t_have_an_account));
+        }
+
+        if (btnRegister.getText().toString().toLowerCase().equals(
+                getString(R.string.register_here).toLowerCase())) {
+            btnRegister.setText(getString(R.string.login_here));
+        } else {
+            btnRegister.setText(getString(R.string.register_here));
+        }
+
+        if (signInButton.getText().toString().toLowerCase().equals(
+                getString(R.string.sign_in).toLowerCase())) {
+            signInButton.setText(getString(R.string.sign_up));
+        } else {
+            signInButton.setText(getString(R.string.sign_in));
+        }
+
     }
 
     private void bindViews(View authFragment) {
@@ -144,6 +219,17 @@ public class AuthFragment extends Fragment implements View.OnClickListener,
         }
     }
 
+    private void showProgressDialog(String msg) {
+        mProgressDialog.setMessage(msg);
+        mProgressDialog.show();
+    }
+
+    private void hideProgressDialog() {
+        if (mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+    }
+
     private void authenticateUsingGoogleAccount() {
         Intent googleSignInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(googleSignInIntent, RC_GOOGLE_AUTH);
@@ -157,6 +243,9 @@ public class AuthFragment extends Fragment implements View.OnClickListener,
             handleGoogleSignInResult(result);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
+
+            // Pass the activity result back to the Facebook SDK
+            mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -172,8 +261,22 @@ public class AuthFragment extends Fragment implements View.OnClickListener,
         showProgressDialog("Configuring account for Book Cloud");
         AuthCredential credential = GoogleAuthProvider
                 .getCredential(googleAccount.getIdToken(), null);
+        signInFirebase(credential);
+    }
 
-        // sign in firebase
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    private void handleFacebookAccessToken(AccessToken token) {
+        Log.d(TAG, "handleFacebookAccessToken:" + token);
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        signInFirebase(credential);
+    }
+
+    // sign in firebase
+    private void signInFirebase(AuthCredential credential) {
         mAuth.signInWithCredential(credential).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -192,70 +295,10 @@ public class AuthFragment extends Fragment implements View.OnClickListener,
         });
     }
 
-    private void toggleViews() {
-        if (signInButton.getVisibility() != View.GONE) {
-            signInButton.setVisibility(View.GONE);
-            signUpButton.setVisibility(View.VISIBLE);
-        } else {
-            signUpButton.setVisibility(View.GONE);
-            signInButton.setVisibility(View.VISIBLE);
-        }
-        if(mTvAuthTitle.getText().toString().toLowerCase().equals(
-                getString(R.string.sign_in_to_book_cloud).toLowerCase())){
-            mTvAuthTitle.setText(getString(R.string.sign_up_for_book_cloud));
-        }else{
-            mTvAuthTitle.setText(getString(R.string.sign_in_to_book_cloud));
-        }
-
-        if(mBtnFacebookLogin.getText().toString().toLowerCase().equals(
-                getString(R.string.login_with_facebook).toLowerCase())){
-            mBtnFacebookLogin.setText(getString(R.string.sign_up_with_facebook));
-        }else{
-            mBtnFacebookLogin.setText(getString(R.string.login_with_facebook));
-        }
-
-        if(mTvAuthMessage.getText().toString().toLowerCase().equals(
-                getString(R.string.don_t_have_an_account).toLowerCase())){
-            mTvAuthMessage.setText(getString(R.string.already_have_an_account));
-        }else{
-            mTvAuthMessage.setText(getString(R.string.don_t_have_an_account));
-        }
-
-        if(btnRegister.getText().toString().toLowerCase().equals(
-                getString(R.string.register_here).toLowerCase())){
-            btnRegister.setText(getString(R.string.login_here));
-        }else{
-            btnRegister.setText(getString(R.string.register_here));
-        }
-
-        if(signInButton.getText().toString().toLowerCase().equals(
-                getString(R.string.sign_in).toLowerCase())){
-            signInButton.setText(getString(R.string.sign_up));
-        }else{
-            signInButton.setText(getString(R.string.sign_in));
-        }
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    private void showProgressDialog(String msg) {
-        mProgressDialog.setMessage(msg);
-        mProgressDialog.show();
-    }
-
-    private void hideProgressDialog() {
-        if (mProgressDialog.isShowing()) {
-            mProgressDialog.dismiss();
-        }
-    }
-
     public interface AuthEmailStateListener {
         void onSignInClicked();
 
         void onSignUpClicked();
     }
+
 }
