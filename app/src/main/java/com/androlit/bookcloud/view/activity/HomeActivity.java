@@ -186,8 +186,9 @@ public class HomeActivity extends AppCompatActivity
         if (mSignIn.getVisibility() == View.VISIBLE && signedIn) {
             mSignIn.setVisibility(View.GONE);
 
-            if (mAuth.getCurrentUser().getEmail() != null)
+            if (mAuth.getCurrentUser().getEmail() != null) {
                 mTvEmail.setText(mAuth.getCurrentUser().getEmail());
+            }
             mTvEmail.setVisibility(View.VISIBLE);
 
             if (mAuth.getCurrentUser().getDisplayName() != null)

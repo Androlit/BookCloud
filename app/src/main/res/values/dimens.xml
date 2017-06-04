@@ -5,7 +5,8 @@
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="navigation_image_margin">16dp</dimen>
+    <dimen name="navigation_image_margin_top">24dp</dimen>
+    <dimen name="navigation_image_margin_bottom">8dp</dimen>
     <dimen name="avatar_width">72dp</dimen>
     <dimen name="avatar_height">72dp</dimen>
 </resources>

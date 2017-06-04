@@ -108,7 +108,7 @@ public class AuthFragment extends Fragment implements View.OnClickListener,
         mAuthListenerActivity = (AuthEmailStateListener) getActivity();
         mAuthSuccessListener = (AuthSuccessListener) getActivity();
 
-        // Initialize Facebook Login button
+// Initialize Facebook Login button
         mCallbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) loginFragment.findViewById(R.id.btn_facebook_login);
         loginButton.setReadPermissions("email", "public_profile");
@@ -121,12 +121,14 @@ public class AuthFragment extends Fragment implements View.OnClickListener,
 
             @Override
             public void onCancel() {
-
+                Log.d(TAG, "facebook:onCancel");
+                // ...
             }
 
             @Override
             public void onError(FacebookException error) {
-
+                Log.d(TAG, "facebook:onError", error);
+                // ...
             }
         });
         return loginFragment;
@@ -271,9 +273,11 @@ public class AuthFragment extends Fragment implements View.OnClickListener,
 
     private void handleFacebookAccessToken(AccessToken token) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);
+
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         signInFirebase(credential);
     }
+
 
     // sign in firebase
     private void signInFirebase(AuthCredential credential) {
