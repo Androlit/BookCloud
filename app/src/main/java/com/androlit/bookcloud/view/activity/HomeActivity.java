@@ -22,6 +22,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -33,6 +34,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.androlit.bookcloud.R;
+import com.androlit.bookcloud.view.adapters.HomePagerAdapter;
 import com.androlit.bookcloud.view.navigator.Navigator;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -47,11 +49,22 @@ public class HomeActivity extends AppCompatActivity
     private TextView mTvEmail;
     private TextView mTvFullName;
 
+    // viewpager
+    private ViewPager mHomePager;
+    private HomePagerAdapter mHomePagerAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
+
+        // home pager view initializing
+        mHomePagerAdapter = new HomePagerAdapter(getSupportFragmentManager());
+        mHomePager = (ViewPager) findViewById(R.id.home_pager);
+        mHomePager.setAdapter(mHomePagerAdapter);
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
