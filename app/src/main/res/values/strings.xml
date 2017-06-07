@@ -39,6 +39,25 @@
     <!--facebook app id-->
     <string name="facebook_app_id">1689369418031507</string>
     <string name="fb_login_protocol_scheme">fb1689369418031507</string>
+    <string name="book_title">Book Title</string>
+    <string name="book_author">Author</string>
+    <string name="book_isbn">ISBN</string>
 
+    <!-- add book fragment -->
+    <string name="book_offer">Choose an offer</string>
+    <string name="add">Add Book</string>
+    <string name="short_description">Short Description</string>
+    <string name="select_a_book_cover_photo">Select a book cover photo</string>
+    <string-array name="book_offers">
+        <item>Sell</item>
+        <item>Rent</item>
+    </string-array>
+
+    <string name="book_condition">Choose book condition</string>
+    <string-array name="book_conditions">
+        <item>Good</item>
+        <item>Fair</item>
+        <item>Poor</item>
+    </string-array>
 
 </resources>

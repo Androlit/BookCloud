@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import com.androlit.bookcloud.view.activity.AddBookActivity;
 import com.androlit.bookcloud.view.activity.AuthenticationActivity;
 
 
@@ -34,5 +35,16 @@ public final class Navigator {
     public static void navigateToAuth(Context context) {
         Intent intent = AuthenticationActivity.getCallingIntent(context);
         ((Activity) context).startActivityForResult(intent, AUTH_REQUEST);
+    }
+
+
+    /**
+     * this method will navigate to AddBookActivity
+     *
+     * @param context is for setting context
+     */
+    public static void navigateToAddBook(Context context) {
+        Intent intent = AddBookActivity.getCallingIntent(context);
+        context.startActivity(intent);
     }
 }
