@@ -22,6 +22,7 @@ import android.content.Intent;
 
 import com.androlit.bookcloud.view.activity.AddBookActivity;
 import com.androlit.bookcloud.view.activity.AuthenticationActivity;
+import com.androlit.bookcloud.view.activity.HomeActivity;
 
 
 public final class Navigator {
@@ -45,6 +46,17 @@ public final class Navigator {
      */
     public static void navigateToAddBook(Context context) {
         Intent intent = AddBookActivity.getCallingIntent(context);
+        context.startActivity(intent);
+    }
+
+
+    /**
+     * this method will navigate to HomeActivity
+     *
+     * @param context is for setting context
+     */
+    public static void navigateToHome(Context context) {
+        Intent intent = HomeActivity.getCallingIntent(context);
         context.startActivity(intent);
     }
 }

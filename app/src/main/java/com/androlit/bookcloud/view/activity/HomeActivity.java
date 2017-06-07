@@ -15,6 +15,7 @@
 
 package com.androlit.bookcloud.view.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -211,5 +212,9 @@ public class HomeActivity extends AppCompatActivity
             mTvFullName.setVisibility(View.GONE);
             mSignIn.setVisibility(View.VISIBLE);
         }
+    }
+
+    public static Intent getCallingIntent(Context context) {
+        return new Intent(context, HomeActivity.class);
     }
 }

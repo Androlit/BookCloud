@@ -3,14 +3,17 @@ package com.androlit.bookcloud.view.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -22,13 +25,28 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.data.model.FirebaseBook;
+import com.androlit.bookcloud.view.navigator.Navigator;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Time;
 
 /**
  * Created by rubel on 6/6/2017.
@@ -55,20 +73,39 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
     private FirebaseBook mBook;
     private Bitmap mPic;
 
+    private FirebaseUser mUser;
+    private FirebaseAuth mAuth;
+    private StorageReference mBookStorageReference;
+    private DatabaseReference mBookDatabaseRef;
+
+    private ProgressDialog mProgressDialog;
+
+    private String photoId;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_book);
 
         initViews();
+        configFirebaseClients();
         mBook = null;
         mPic = null;
+        photoId = null;
     }
 
     public static Intent getCallingIntent(Context context) {
         return new Intent(context, AddBookActivity.class);
     }
 
+    private void checkAppUser(){
+        mUser = mAuth.getCurrentUser();
+        if(mUser == null){
+            Toast.makeText(this, "Login to upload", Toast.LENGTH_LONG).show();
+            Navigator.navigateToHome(this);
+            finish();
+        }
+    }
     private void initViews(){
         btnAddBook = (Button) findViewById(R.id.btn_book_add);
         btnAddBook.setOnClickListener(this);
@@ -83,6 +120,13 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         spinnerCondition = (Spinner) findViewById(R.id.spinner_book_condition);
         tvImageTitle = (TextView) findViewById(R.id.tv_book_image_title);
         imageViewCover = (ImageView) findViewById(R.id.image_view_book_cover);
+        mProgressDialog = new ProgressDialog(this);
+    }
+
+    private void configFirebaseClients(){
+        mAuth = FirebaseAuth.getInstance();
+        mBookDatabaseRef = FirebaseDatabase.getInstance().getReference().child("books");
+        mBookStorageReference = FirebaseStorage.getInstance().getReference().child("books");
     }
 
     @Override
@@ -90,8 +134,12 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         int id = v.getId();
         switch (id){
             case R.id.btn_book_add:
+                Log.i("Button", "OK");
                 if(verifyBookFormInputs()){
-                    Log.i("BOOK_UP", "Successful");
+                    Log.i("Button", "OK");
+                    uploadBookToFirebase();
+                }else{
+                    Log.i("Button", "FALSE");
                 }
                 break;
             case R.id.image_button_book_cover:
@@ -99,6 +147,57 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             default: break;
         }
+    }
+
+    private void uploadBookToFirebase() {
+        showProgressDialog("Uploading book");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        mPic.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        photoId = mUser.getUid() + ";" + System.currentTimeMillis();
+        UploadTask task = mBookStorageReference.child(photoId)
+                .putBytes(baos.toByteArray());
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgressDialog();
+                Snackbar.make(editTextAuthor, "Photo upload failed",
+                        Snackbar.LENGTH_LONG).show();
+            }
+        });
+
+        task.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                @SuppressWarnings("VisibleForTests")
+                Uri downloadUri = taskSnapshot.getDownloadUrl();
+                uploadBookInfoToDatabase(downloadUri);
+            }
+        });
+    }
+
+    private void uploadBookInfoToDatabase(Uri downloadUri) {
+        mBook.setPhotoUrl(downloadUri.toString());
+        Task task= mBookDatabaseRef.push().setValue(mBook);
+
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgressDialog();
+                if(photoId != null){
+                    mBookStorageReference.child(photoId).delete();
+                }
+                Snackbar.make(editTextAuthor, "Upload Books Failure", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+
+        task.addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                hideProgressDialog();
+                Navigator.navigateToHome(AddBookActivity.this);
+                finish();
+            }
+        });
     }
 
     private void showPictureDialog() {
@@ -177,10 +276,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
             mBook.setPrice(Integer.valueOf(sPRICE));
         }
 
-        String imageUrl = tvImageTitle.getText().toString().trim();
-        if(imageUrl.equals(getString(R.string.select_a_book_cover_photo))
-                || imageUrl.equals("Must provide a photo")) {
-            tvImageTitle.setText("Must provide a photo");
+        if(tvImageTitle.getVisibility() == View.VISIBLE){
             return false;
         }
 
@@ -190,7 +286,6 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         mBook.setTitle(title);
         mBook.setAuthor(author);
         mBook.setDescription(description);
-        mBook.setPhotoUrl(imageUrl);
         mBook.setOffer(offer);
         mBook.setCondition(conditon);
 
@@ -222,6 +317,23 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                 }
             default:
                 super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkAppUser();
+    }
+
+    private void showProgressDialog(String msg) {
+        mProgressDialog.setMessage(msg);
+        mProgressDialog.show();
+    }
+
+    private void hideProgressDialog() {
+        if (mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
         }
     }
 }
