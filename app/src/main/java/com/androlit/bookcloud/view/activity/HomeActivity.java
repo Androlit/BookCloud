@@ -21,7 +21,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -36,23 +36,30 @@ import android.widget.TextView;
 
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.view.adapters.HomePagerAdapter;
+import com.androlit.bookcloud.view.fragment.AvailableBookListFragment;
 import com.androlit.bookcloud.view.navigator.Navigator;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
+    List<Fragment> mFragmentListOfViewpager;
     private FirebaseAuth mAuth;
-
     private Button mSignIn;
     private TextView mTvEmail;
     private TextView mTvFullName;
-
     // viewpager
     private ViewPager mHomePager;
     private HomePagerAdapter mHomePagerAdapter;
+
+    public static Intent getCallingIntent(Context context) {
+        return new Intent(context, HomeActivity.class);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +68,9 @@ public class HomeActivity extends AppCompatActivity
         ButterKnife.bind(this);
 
         // home pager view initializing
-        mHomePagerAdapter = new HomePagerAdapter(getSupportFragmentManager());
+        mFragmentListOfViewpager = new ArrayList<>();
+        mFragmentListOfViewpager.add(new AvailableBookListFragment());
+        mHomePagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), mFragmentListOfViewpager);
         mHomePager = (ViewPager) findViewById(R.id.home_pager);
         mHomePager.setAdapter(mHomePagerAdapter);
 
@@ -212,9 +221,5 @@ public class HomeActivity extends AppCompatActivity
             mTvFullName.setVisibility(View.GONE);
             mSignIn.setVisibility(View.VISIBLE);
         }
-    }
-
-    public static Intent getCallingIntent(Context context) {
-        return new Intent(context, HomeActivity.class);
     }
 }
