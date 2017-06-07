@@ -39,6 +39,12 @@
     <!--facebook app id-->
     <string name="facebook_app_id">1689369418031507</string>
     <string name="fb_login_protocol_scheme">fb1689369418031507</string>
+    <string name="demo_distance">5 miles from you</string>
+    <string name="demo_writer">Sun Tzu</string>
+    <string name="demo_book_name">THE ART OF WAR</string>
+    <string name="demo_price">৳200</string>
+    <string name="add_later">add later</string>
+    <string name="buy_now">buy now</string>
 
 
 </resources>
