@@ -46,5 +46,25 @@
     <string name="add_later">add later</string>
     <string name="buy_now">buy now</string>
 
+    <string name="select_a_book_cover_photo" >Select a book cover photo</string>
+    <string name="book_title">Title</string>
+    <string name="book_author">Author</string>
+    <string name="short_description">Short Description</string>
+    <string name="book_isbn">Isbn</string>
+
+    <string name="book_offer">Choose an offer</string>
+    <string-array name="book_offers">
+        <item>Sell</item>
+        <item>Rent</item>
+    </string-array>
+
+    <string name="book_condition">Book Condition</string>
+    <string name="add">Add Book</string>
+    <string-array name="book_conditions">
+        <item>Good</item>
+        <item>Fair</item>
+        <item>Poor</item>
+    </string-array>
+
 
 </resources>
