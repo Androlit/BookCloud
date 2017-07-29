@@ -60,6 +60,9 @@
 
     <string name="book_condition">Book Condition</string>
     <string name="add">Add Book</string>
+    <string name="search_title">Search Book</string>
+    <string name="search_hint">search book</string>
+    <string name="bdt">৳</string>
     <string-array name="book_conditions">
         <item>Good</item>
         <item>Fair</item>

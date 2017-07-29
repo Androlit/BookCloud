@@ -33,6 +33,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.view.adapters.HomePagerAdapter;
@@ -82,7 +83,10 @@ public class HomeActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Navigator.navigateToAddBook(HomeActivity.this);
+                if (mAuth.getCurrentUser() != null)
+                    Navigator.navigateToAddBook(HomeActivity.this);
+                else
+                    Toast.makeText(HomeActivity.this, "Loging to add book", Toast.LENGTH_SHORT).show();
             }
         });
 

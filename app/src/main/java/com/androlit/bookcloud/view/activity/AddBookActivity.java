@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2017 Book Cloud
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.androlit.bookcloud.view.activity;
 
 import android.Manifest;
@@ -25,7 +40,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,11 +60,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.sql.Time;
 
-/**
- * Created by rubel on 6/6/2017.
- */
 
 public class AddBookActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -82,6 +92,10 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
 
     private String photoId;
 
+    public static Intent getCallingIntent(Context context) {
+        return new Intent(context, AddBookActivity.class);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,10 +106,6 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         mBook = null;
         mPic = null;
         photoId = null;
-    }
-
-    public static Intent getCallingIntent(Context context) {
-        return new Intent(context, AddBookActivity.class);
     }
 
     private void checkAppUser(){
