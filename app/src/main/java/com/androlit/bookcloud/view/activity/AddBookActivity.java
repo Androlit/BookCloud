@@ -47,6 +47,7 @@ import android.widget.Toast;
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.data.model.FirebaseBook;
 import com.androlit.bookcloud.view.navigator.Navigator;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -166,6 +167,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         photoId = mUser.getUid() + ";" + System.currentTimeMillis();
         UploadTask task = mBookStorageReference.child(photoId)
                 .putBytes(baos.toByteArray());
+
         task.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
@@ -187,7 +189,10 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
 
     private void uploadBookInfoToDatabase(Uri downloadUri) {
         mBook.setPhotoUrl(downloadUri.toString());
-        Task task= mBookDatabaseRef.push().setValue(mBook);
+        final String key = mBookDatabaseRef.push().getKey();
+        Task task= mBookDatabaseRef.child(key).setValue(mBook);
+
+        Log.d("Insert", key);
 
         task.addOnFailureListener(new OnFailureListener() {
             @Override
@@ -204,8 +209,16 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onSuccess(Void aVoid) {
                 hideProgressDialog();
-                Navigator.navigateToHome(AddBookActivity.this);
-                finish();
+                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("user_books");
+                ref.child(mUser.getUid()).child(key).setValue(mBook)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Navigator.navigateToHome(AddBookActivity.this);
+                        finish();
+                    }
+                });
+
             }
         });
     }

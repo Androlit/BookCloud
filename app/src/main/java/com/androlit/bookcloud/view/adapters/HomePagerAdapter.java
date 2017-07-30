@@ -3,6 +3,8 @@ package com.androlit.bookcloud.view.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.util.Log;
 
 import java.util.List;
 
@@ -12,9 +14,10 @@ import java.util.List;
 
 public class HomePagerAdapter extends FragmentPagerAdapter {
     private List<Fragment> fragments;
-
+    private FragmentManager fm;
     public HomePagerAdapter(FragmentManager fm, List<Fragment> fragments) {
         super(fm);
+        this.fm = fm;
         this.fragments = fragments;
     }
 
@@ -24,7 +27,23 @@ public class HomePagerAdapter extends FragmentPagerAdapter {
     }
 
     @Override
+    public int getItemPosition(Object object) {
+        return PagerAdapter.POSITION_NONE;
+    }
+
+    @Override
     public int getCount() {
         return fragments.size();
+    }
+
+    public void remove(int index){
+            fm.getFragments().remove(0);
+            fragments.remove(index);
+            notifyDataSetChanged();
+    }
+
+    public void add(Fragment fragment){
+        fragments.add(fragment);
+        notifyDataSetChanged();
     }
 }

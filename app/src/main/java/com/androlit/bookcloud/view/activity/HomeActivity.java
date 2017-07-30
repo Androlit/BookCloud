@@ -42,6 +42,7 @@ import android.widget.Toast;
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.view.adapters.HomePagerAdapter;
 import com.androlit.bookcloud.view.fragment.AvailableBookListFragment;
+import com.androlit.bookcloud.view.fragment.MyBookFragment;
 import com.androlit.bookcloud.view.fragment.SearchBookListFragment;
 import com.androlit.bookcloud.view.navigator.Navigator;
 import com.google.firebase.auth.FirebaseAuth;
@@ -200,7 +201,9 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_my_books) {
-
+            // TODO: need attention check efficiency
+            mHomePagerAdapter.remove(mHomePager.getCurrentItem());
+            mHomePagerAdapter.add(new MyBookFragment());
         } else if (id == R.id.action_messages) {
 
         } else if (id == R.id.action_history) {
