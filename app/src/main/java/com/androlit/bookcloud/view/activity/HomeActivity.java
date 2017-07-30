@@ -45,6 +45,7 @@ import com.androlit.bookcloud.view.fragment.AvailableBookListFragment;
 import com.androlit.bookcloud.view.fragment.SearchBookListFragment;
 import com.androlit.bookcloud.view.navigator.Navigator;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -253,8 +254,10 @@ public class HomeActivity extends AppCompatActivity
     private void updateNavHeader(boolean signedIn) {
         if (mSignIn.getVisibility() == View.VISIBLE && signedIn) {
             mSignIn.setVisibility(View.GONE);
+            FirebaseUser user = mAuth.getCurrentUser();
 
-            if (mAuth.getCurrentUser().getEmail() != null) {
+            assert user != null;
+            if (user.getEmail() != null) {
                 mTvEmail.setText(mAuth.getCurrentUser().getEmail());
             }
             mTvEmail.setVisibility(View.VISIBLE);
