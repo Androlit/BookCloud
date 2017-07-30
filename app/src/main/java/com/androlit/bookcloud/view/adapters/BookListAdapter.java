@@ -65,6 +65,8 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookLi
         Log.d("COUNT", mFirebaseBooks.size() + "a");
         notifyDataSetChanged();
     }
+
+
     @Override
     public int getItemCount() {
         return mFirebaseBooks.size();

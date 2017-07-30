@@ -30,6 +30,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -41,6 +42,7 @@ import android.widget.Toast;
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.view.adapters.HomePagerAdapter;
 import com.androlit.bookcloud.view.fragment.AvailableBookListFragment;
+import com.androlit.bookcloud.view.fragment.SearchBookListFragment;
 import com.androlit.bookcloud.view.navigator.Navigator;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -71,20 +73,21 @@ public class HomeActivity extends AppCompatActivity
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
 
+        // home pager view initializing
+        mFragmentListOfViewpager = new ArrayList<>();
+
 
         // Get the intent, verify the action and get the query
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             searchAvailableBooks(query);
+        }else{
+            mFragmentListOfViewpager.add(new AvailableBookListFragment());
+            mHomePagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), mFragmentListOfViewpager);
+            mHomePager = (ViewPager) findViewById(R.id.home_pager);
+            mHomePager.setAdapter(mHomePagerAdapter);
         }
-
-        // home pager view initializing
-        mFragmentListOfViewpager = new ArrayList<>();
-        mFragmentListOfViewpager.add(new AvailableBookListFragment());
-        mHomePagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), mFragmentListOfViewpager);
-        mHomePager = (ViewPager) findViewById(R.id.home_pager);
-        mHomePager.setAdapter(mHomePagerAdapter);
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -121,8 +124,13 @@ public class HomeActivity extends AppCompatActivity
 //        be inhibited by the user's data connection. You might want to display
 //        a spinning progress wheel until your search returns. See android.net
 //        for a reference of network APIs and Creating a Progress Dialog
-//        for information about how to display a progress wheel.
-
+//        for information about a to display a progress wheel.
+        SearchBookListFragment fragment = new SearchBookListFragment();
+        fragment.setQuery(query);
+        mFragmentListOfViewpager.add(fragment);
+        mHomePagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), mFragmentListOfViewpager);
+        mHomePager = (ViewPager) findViewById(R.id.home_pager);
+        mHomePager.setAdapter(mHomePagerAdapter);
     }
 
     private void setNavigationView() {
