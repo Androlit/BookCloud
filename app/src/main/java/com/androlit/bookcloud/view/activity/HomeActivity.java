@@ -15,6 +15,7 @@
 
 package com.androlit.bookcloud.view.activity;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,8 +28,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -68,6 +71,14 @@ public class HomeActivity extends AppCompatActivity
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
 
+
+        // Get the intent, verify the action and get the query
+        Intent intent = getIntent();
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            searchAvailableBooks(query);
+        }
+
         // home pager view initializing
         mFragmentListOfViewpager = new ArrayList<>();
         mFragmentListOfViewpager.add(new AvailableBookListFragment());
@@ -101,6 +112,19 @@ public class HomeActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
     }
 
+
+    // search books
+    private void searchAvailableBooks(String query) {
+//        remember:
+//        https://developer.android.com/guide/topics/search/search-dialog.html
+//        If your data is stored online, then the perceived search performance might
+//        be inhibited by the user's data connection. You might want to display
+//        a spinning progress wheel until your search returns. See android.net
+//        for a reference of network APIs and Creating a Progress Dialog
+//        for information about how to display a progress wheel.
+
+    }
+
     private void setNavigationView() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -130,8 +154,18 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
+        // Inflate the options menu from XML
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home, menu);
+
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        MenuItem menuItem = menu.findItem(R.id.menu_search);
+        SearchView searchView = (SearchView) menuItem.getActionView();
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+
         return true;
     }
 

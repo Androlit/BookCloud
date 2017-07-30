@@ -77,12 +77,14 @@ public class AvailableBookListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         showProgressDialog("Books loading");
+        mBookListAdapter.onAttachedToRecyclerView(recyclerView);
         attachDatabaseReadListener();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        mBookListAdapter.clear();
         detachDatabaseReadListener();
     }
 
@@ -106,7 +108,6 @@ public class AvailableBookListFragment extends Fragment {
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
                 }
 
                 @Override

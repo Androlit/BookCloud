@@ -70,6 +70,12 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookLi
         return mFirebaseBooks.size();
     }
 
+    public void clear() {
+        int size = mFirebaseBooks.size();
+        mFirebaseBooks.clear();
+        notifyItemRangeRemoved(0, size);
+    }
+
     public class BookListViewHolder extends RecyclerView.ViewHolder {
         private ImageView bookThumbs;
         private TextView bookName;
