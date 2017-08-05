@@ -17,14 +17,18 @@
 package com.androlit.bookcloud.view.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.data.model.FirebaseBook;
 import com.bumptech.glide.Glide;
@@ -37,6 +41,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookLi
     private Context mContext;
     private List<FirebaseBook> mFirebaseBooks;
 
+    private BookItemClickListener listener;
 
     public BookListAdapter(List<FirebaseBook> firebaseBooks, Context context) {
         mFirebaseBooks = firebaseBooks;
@@ -79,20 +84,53 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookLi
         notifyItemRangeRemoved(0, size);
     }
 
+    // search item click listener interface
+    public interface BookItemClickListener {
+        void onItemClick(View itemView, int position);
+    }
+
+    // method to set SearchItemClickListener to this adapter from activity/fragment using it
+    public void setBookItemClickListener(BookItemClickListener listener) {
+        this.listener = listener;
+    }
+
     public class BookListViewHolder extends RecyclerView.ViewHolder {
         private ImageView bookThumbs;
         private TextView bookName;
         private TextView author;
         private TextView locationDistance;
         private TextView price;
+        private Button btnBuyNow;
 
-        public BookListViewHolder(View itemView) {
+        public BookListViewHolder(final View itemView) {
             super(itemView);
             bookThumbs = (ImageView) itemView.findViewById(R.id.book_thumbs);
             bookName = (TextView) itemView.findViewById(R.id.book_name);
             author = (TextView) itemView.findViewById(R.id.author_name);
             locationDistance = (TextView) itemView.findViewById(R.id.location_distance);
             price = (TextView) itemView.findViewById(R.id.price_tag);
+            btnBuyNow = (Button) itemView.findViewById(R.id.btn_buy_now);
+
+            btnBuyNow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new MaterialDialog.Builder(mContext)
+                            .title("Do You Want to Buy this book")
+                            .content("This action will send message to user who has offered this book")
+                            .positiveText("YES")
+                            .negativeText("No")
+                            .onPositive(new MaterialDialog.SingleButtonCallback(){
+
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    if (listener != null && getAdapterPosition() != RecyclerView.NO_POSITION) {
+                                        listener.onItemClick(itemView, getAdapterPosition());
+                                    }
+                                }
+                            })
+                            .show();
+                }
+            });
         }
     }
 }

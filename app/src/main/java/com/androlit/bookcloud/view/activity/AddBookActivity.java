@@ -310,6 +310,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         String conditon = spinnerCondition.getSelectedItem().toString();
 
         mBook.setTitle(title);
+        mBook.setTitleLowerCase(title.toLowerCase());
         mBook.setAuthor(author);
         mBook.setDescription(description);
         mBook.setOffer(offer);
@@ -321,6 +322,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
 
         mBook.setLocationJson(json);
         mBook.setLocationName(name);
+        mBook.setUserId(mUser.getUid());
 
         return true;
     }

@@ -20,9 +20,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import com.androlit.bookcloud.utils.AppConstants;
 import com.androlit.bookcloud.view.activity.AddBookActivity;
 import com.androlit.bookcloud.view.activity.AuthenticationActivity;
 import com.androlit.bookcloud.view.activity.HomeActivity;
+import com.androlit.bookcloud.view.activity.MessageActivity;
 
 
 public final class Navigator {
@@ -57,6 +59,12 @@ public final class Navigator {
      */
     public static void navigateToHome(Context context) {
         Intent intent = HomeActivity.getCallingIntent(context);
+        context.startActivity(intent);
+    }
+
+    public static void navigateToMessage(Context context, String receiver) {
+        Intent intent = MessageActivity.getCallingIntent(context);
+        intent.putExtra(AppConstants.CHAT_ACTIVITY_RECEIVER, receiver);
         context.startActivity(intent);
     }
 }

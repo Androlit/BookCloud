@@ -28,6 +28,8 @@ public class FirebaseBook {
     private String condition;
     private String locationJson;
     private String locationName;
+    private String titleLowerCase;
+    private String userId;
 
     public FirebaseBook(){
         this(null, null, null, 0, null, null);
@@ -120,6 +122,22 @@ public class FirebaseBook {
 
     public void setLocationName(String locationName) {
         this.locationName = locationName;
+    }
+
+    public String getTitleLowerCase() {
+        return titleLowerCase;
+    }
+
+    public void setTitleLowerCase(String titleLowerCase) {
+        this.titleLowerCase = titleLowerCase;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     @Override

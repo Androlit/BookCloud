@@ -50,6 +50,9 @@
             android:name=".view.activity.AddBookActivity"
             android:parentActivityName=".view.activity.HomeActivity" />
 
+        <activity android:name=".view.activity.MessageActivity"
+            android:parentActivityName=".view.activity.HomeActivity"/>
+
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"

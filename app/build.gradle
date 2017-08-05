@@ -58,6 +58,14 @@ dependencies {
 
     compile 'com.google.code.gson:gson:2.7'
 
+    compile 'com.afollestad.material-dialogs:core:0.9.4.5'
+
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+
+    compile 'com.github.hani-momanii:SuperNova-Emoji:1.1'
+
 
     testCompile 'junit:junit:4.12'
 }

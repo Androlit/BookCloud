@@ -104,7 +104,7 @@ public class SearchBookListFragment extends Fragment {
         }
 
         Query fireQuery = mFirebaseDatabase.getReference().child("books")
-                .orderByChild("title")
+                .orderByChild("titleLowerCase")
                 .startAt(this.query); // equalTo()  , will make this exact search
 
         if(fireQuery!=null){

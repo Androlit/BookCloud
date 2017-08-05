@@ -47,6 +47,7 @@ import android.widget.Toast;
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.view.adapters.HomePagerAdapter;
 import com.androlit.bookcloud.view.fragment.AvailableBookListFragment;
+import com.androlit.bookcloud.view.fragment.MessageFragment;
 import com.androlit.bookcloud.view.fragment.MyBookFragment;
 import com.androlit.bookcloud.view.fragment.SearchBookListFragment;
 import com.androlit.bookcloud.view.navigator.Navigator;
@@ -176,7 +177,7 @@ public class HomeActivity extends AppCompatActivity
 //        for a reference of network APIs and Creating a Progress Dialog
 //        for information about a to display a progress wheel.
         SearchBookListFragment fragment = new SearchBookListFragment();
-        fragment.setQuery(query);
+        fragment.setQuery(query.toLowerCase());
         mFragmentListOfViewpager.add(fragment);
         mHomePagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), mFragmentListOfViewpager);
         mHomePager = (ViewPager) findViewById(R.id.home_pager);
@@ -253,7 +254,8 @@ public class HomeActivity extends AppCompatActivity
             mHomePagerAdapter.remove(mHomePager.getCurrentItem());
             mHomePagerAdapter.add(new MyBookFragment());
         } else if (id == R.id.action_messages) {
-
+            mHomePagerAdapter.remove(mHomePager.getCurrentItem());
+            mHomePagerAdapter.add(new MessageFragment());
         } else if (id == R.id.action_history) {
 
         } else if (id == R.id.action_manage_profile) {
