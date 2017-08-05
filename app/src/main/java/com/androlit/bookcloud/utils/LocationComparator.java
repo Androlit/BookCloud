@@ -13,7 +13,7 @@ public class LocationComparator implements Comparator<LocationBook> {
 
     @Override
     public int compare(LocationBook loc1, LocationBook loc2) {
-        if(loc1.getDistance() == loc2.getDistance()) return  0;
+        if(loc1.getDistance() == loc2.getDistance()) return 0;
         return loc1.getDistance() < loc2.getDistance() ? -1 : 1;
     }
 }

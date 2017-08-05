@@ -73,8 +73,7 @@ public class SearchBookListFragment extends Fragment {
         // add book list
         mFirebaseBooks = new ArrayList<>();
 
-        Comparator<LocationBook> comparator = new LocationComparator();
-        priorityQueue = new PriorityQueue<>(10, comparator);
+        priorityQueue = new PriorityQueue<>(10, new LocationComparator());
 
         recyclerView = (RecyclerView) availableBookListView.findViewById(R.id.home_pager_recycle_view);
         layoutManager = new LinearLayoutManager(getContext());
@@ -120,12 +119,15 @@ public class SearchBookListFragment extends Fragment {
                             //mBookListAdapter.add(book);
                         }
 
-                        for (LocationBook book : priorityQueue){
+
+                        while(!priorityQueue.isEmpty()){
+                            LocationBook book = priorityQueue.remove();
                             Log.d("BOOK:" , book.getDistance().toString());
                             Integer dis = Math.round(book.getDistance()/1000);
                             book.getBook().setLocationName(dis.toString() + " km, " +
                                     "" + book.getBook().getLocationName());
                             mBookListAdapter.add(book.getBook());
+
                         }
 
                     } else {

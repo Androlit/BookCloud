@@ -1,10 +1,12 @@
 package com.androlit.bookcloud.data.model;
 
+import java.util.Comparator;
+
 /**
  * Created by rubel on 8/5/2017.
  */
 
-public class LocationBook {
+public class LocationBook{
     Float distance;
     FirebaseBook book;
 
