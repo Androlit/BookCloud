@@ -16,6 +16,9 @@
 package com.androlit.bookcloud.view.fragment;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -28,16 +31,23 @@ import android.view.ViewGroup;
 
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.data.model.FirebaseBook;
+import com.androlit.bookcloud.data.model.LocationBook;
+import com.androlit.bookcloud.utils.LocationComparator;
 import com.androlit.bookcloud.view.adapters.BookListAdapter;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 
 public class AvailableBookListFragment extends Fragment {
@@ -51,8 +61,6 @@ public class AvailableBookListFragment extends Fragment {
     private DatabaseReference mMessagesDatabaseReference;
     private ChildEventListener mChildEventListener;
     private ProgressDialog mProgressDialog;
-
-
 
     @Nullable
     @Override
@@ -100,6 +108,7 @@ public class AvailableBookListFragment extends Fragment {
     }
 
     private void attachDatabaseReadListener() {
+
         if (mChildEventListener == null) {
             mChildEventListener = new ChildEventListener() {
                 @Override

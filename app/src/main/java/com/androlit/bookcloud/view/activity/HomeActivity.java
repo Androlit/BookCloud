@@ -18,10 +18,15 @@ package com.androlit.bookcloud.view.activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -47,9 +52,12 @@ import com.androlit.bookcloud.view.fragment.SearchBookListFragment;
 import com.androlit.bookcloud.view.navigator.Navigator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.ButterKnife;
 
@@ -64,6 +72,10 @@ public class HomeActivity extends AppCompatActivity
     // viewpager
     private ViewPager mHomePager;
     private HomePagerAdapter mHomePagerAdapter;
+
+    // location
+    private Location mCurrentLocation;
+    private String mCurrentLocationName;
 
     public static Intent getCallingIntent(Context context) {
         return new Intent(context, HomeActivity.class);
@@ -91,6 +103,7 @@ public class HomeActivity extends AppCompatActivity
             mHomePager.setAdapter(mHomePagerAdapter);
         }
 
+        initCurrentLocation();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -115,6 +128,41 @@ public class HomeActivity extends AppCompatActivity
         setNavigationView();
 
         mAuth = FirebaseAuth.getInstance();
+    }
+
+    private void initCurrentLocation() {
+        SharedPreferences preferences = getSharedPreferences("com.androlit.bookcloud", Context.MODE_PRIVATE);
+        String json = preferences.getString("location", "");
+        Location location = new Gson().fromJson(json, Location.class);
+
+        if(location == null){
+            mCurrentLocation = new Location("");
+            mCurrentLocation.setLatitude(23.793993);
+            mCurrentLocation.setLongitude(90.404272);
+        }else{
+            mCurrentLocation = location;
+        }
+
+        Log.d("LOCATION: 6", mCurrentLocation.toString());
+
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address>  addresses = geocoder.getFromLocation(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(), 1);
+            String street = addresses.get(0).getAddressLine(0);
+            String cityName = addresses.get(0).getAddressLine(1);
+            String countryName = addresses.get(0).getAddressLine(2);
+            mCurrentLocationName = street + "," + cityName;
+
+            if(mCurrentLocationName != null){
+                preferences.edit().putString("locationName", mCurrentLocationName).apply();
+            }
+
+            Snackbar.make((Toolbar) findViewById(R.id.toolbar), mCurrentLocationName, Snackbar.LENGTH_INDEFINITE).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

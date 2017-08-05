@@ -26,6 +26,8 @@ public class FirebaseBook {
     private String photoUrl;
     private int price;
     private String condition;
+    private String locationJson;
+    private String locationName;
 
     public FirebaseBook(){
         this(null, null, null, 0, null, null);
@@ -102,6 +104,22 @@ public class FirebaseBook {
 
     public void setCondition(String condition) {
         this.condition = condition;
+    }
+
+    public String getLocationJson() {
+        return locationJson;
+    }
+
+    public void setLocationJson(String locationJson) {
+        this.locationJson = locationJson;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 
     @Override

@@ -58,6 +58,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookLi
         String priceTag = "৳" + firebaseBook.getPrice();
         holder.price.setText(priceTag);
         Glide.with(mContext).load(firebaseBook.getPhotoUrl()).into(holder.bookThumbs);
+        holder.locationDistance.setText(firebaseBook.getLocationName());
     }
 
     public void add(FirebaseBook book) {
