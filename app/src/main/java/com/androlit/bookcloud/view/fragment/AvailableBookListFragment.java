@@ -16,15 +16,11 @@
 package com.androlit.bookcloud.view.fragment;
 
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,52 +28,45 @@ import android.view.ViewGroup;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.data.model.FirebaseBook;
-import com.androlit.bookcloud.data.model.LocationBook;
 import com.androlit.bookcloud.data.model.Message;
 import com.androlit.bookcloud.data.model.UserConnection;
-import com.androlit.bookcloud.utils.LocationComparator;
 import com.androlit.bookcloud.view.adapters.BookListAdapter;
+import com.androlit.bookcloud.view.listeners.RecycleViewScrollViewListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.Transaction;
-import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.PriorityQueue;
 
 
-public class AvailableBookListFragment extends Fragment implements BookListAdapter.BookItemClickListener{
+public class AvailableBookListFragment extends Fragment implements
+        BookListAdapter.BookItemClickListener {
     RecyclerView.LayoutManager layoutManager;
     BookListAdapter mBookListAdapter;
     ArrayList<FirebaseBook> mFirebaseBooks;
+    FirebaseUser mFirebaseUser;
+    DatabaseReference mSenderMessageReference;
+    DatabaseReference mReceiverMessageReference;
+    DatabaseReference mGlobalMessageReference;
+    ChildEventListener mMessaseChildEventListener;
+    RecycleViewScrollViewListener mRecycleViewScrollViewListener;
     private RecyclerView recyclerView;
-
     // Firebase
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mBooksDatabaseReference;
     private ChildEventListener mChildEventListener;
     private ProgressDialog mProgressDialog;
 
-    FirebaseUser mFirebaseUser;
-    DatabaseReference mSenderMessageReference;
-    DatabaseReference mReceiverMessageReference;
-    DatabaseReference mGlobalMessageReference;
-    ChildEventListener mMessaseChildEventListener;
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View availableBookListView = inflater.inflate(R.layout.fragment_list_of_avaiable_books, container, false);
+        final View availableBookListView = inflater.inflate(R.layout.fragment_list_of_avaiable_books, container, false);
+
+        mRecycleViewScrollViewListener = (RecycleViewScrollViewListener) getActivity();
 
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -95,6 +84,19 @@ public class AvailableBookListFragment extends Fragment implements BookListAdapt
         mBookListAdapter = new BookListAdapter(mFirebaseBooks, getContext());
         mBookListAdapter.setBookItemClickListener(this);
         recyclerView.setAdapter(mBookListAdapter);
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                mRecycleViewScrollViewListener.onScrolling(dy);
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
+
         return availableBookListView;
     }
 
@@ -139,7 +141,7 @@ public class AvailableBookListFragment extends Fragment implements BookListAdapt
                     hideProgressDialog();
                     FirebaseBook firebaseBook = dataSnapshot.getValue(FirebaseBook.class);
                     mFirebaseBooks.add(firebaseBook);
-                    mBookListAdapter.add(firebaseBook);
+                    mBookListAdapter.notifyDataSetChanged();
                 }
 
                 @Override
@@ -223,11 +225,11 @@ public class AvailableBookListFragment extends Fragment implements BookListAdapt
                 .show();
     }
 
-    public String getMessageId(String recieverId) {
+    public String getMessageId(String second) {
         String first = mFirebaseUser.getUid();
-        String second = recieverId;
         int comp = first.compareTo(second);
         if (comp < 0) return first + ";" + second;
         return second + ";" + first;
     }
+
 }

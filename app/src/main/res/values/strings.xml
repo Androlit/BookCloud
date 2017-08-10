@@ -63,6 +63,8 @@
     <string name="search_title">Search Book</string>
     <string name="search_hint">Search Books</string>
     <string name="bdt">৳</string>
+    <string name="current_book_list">BOOKS</string>
+    <string name="search_items">SEARCH LIST</string>
     <string-array name="book_conditions">
         <item>Good</item>
         <item>Fair</item>
