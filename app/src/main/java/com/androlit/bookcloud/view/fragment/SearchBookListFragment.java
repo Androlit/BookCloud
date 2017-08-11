@@ -1,8 +1,21 @@
+/*
+ * Copyright (C) 2017 Book Cloud
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.androlit.bookcloud.view.fragment;
 
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
@@ -20,6 +33,7 @@ import com.androlit.bookcloud.data.model.FirebaseBook;
 import com.androlit.bookcloud.data.model.LocationBook;
 import com.androlit.bookcloud.utils.LocationComparator;
 import com.androlit.bookcloud.view.adapters.BookListAdapter;
+import com.androlit.bookcloud.view.listeners.RecycleViewScrollViewListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -28,26 +42,19 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.PriorityQueue;
-
-/**
- * Created by rubel on 7/30/2017.
- */
 
 public class SearchBookListFragment extends Fragment {
     RecyclerView.LayoutManager layoutManager;
     BookListAdapter mBookListAdapter;
     ArrayList<FirebaseBook> mFirebaseBooks;
-    private RecyclerView recyclerView;
-
-    // Firebase
-    private FirebaseDatabase mFirebaseDatabase;
-
+    RecycleViewScrollViewListener mRecycleViewScrollViewListener;
     String query = null;
-
     PriorityQueue<LocationBook> priorityQueue;
     Location mCurrentLocation;
+    private RecyclerView recyclerView;
+    // Firebase
+    private FirebaseDatabase mFirebaseDatabase;
 
     private void setCurrentLocation() {
         SharedPreferences preferences = getActivity().getSharedPreferences("com.androlit.bookcloud",
@@ -70,6 +77,9 @@ public class SearchBookListFragment extends Fragment {
 
         View availableBookListView = inflater.inflate(R.layout.fragment_list_of_avaiable_books, container, false);
 
+        // This is for giving acknowledgment to the activity that recycle view is scrolling
+        mRecycleViewScrollViewListener = (RecycleViewScrollViewListener) getActivity();
+
         // add book list
         mFirebaseBooks = new ArrayList<>();
 
@@ -81,6 +91,12 @@ public class SearchBookListFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         mBookListAdapter = new BookListAdapter(mFirebaseBooks, getContext());
         recyclerView.setAdapter(mBookListAdapter);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                mRecycleViewScrollViewListener.onScrolling(dy);
+            }
+        });
 
         setCurrentLocation();
 
