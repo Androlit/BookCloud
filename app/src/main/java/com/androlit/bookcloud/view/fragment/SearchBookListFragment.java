@@ -30,8 +30,7 @@ import android.view.ViewGroup;
 
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.data.model.FirebaseBook;
-import com.androlit.bookcloud.data.model.LocationBook;
-import com.androlit.bookcloud.utils.LocationComparator;
+import com.androlit.bookcloud.utils.LocationBasedBookList;
 import com.androlit.bookcloud.view.adapters.BookListAdapter;
 import com.androlit.bookcloud.view.listeners.RecycleViewScrollViewListener;
 import com.google.firebase.database.DataSnapshot;
@@ -42,7 +41,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.PriorityQueue;
+import java.util.List;
 
 public class SearchBookListFragment extends Fragment {
     RecyclerView.LayoutManager layoutManager;
@@ -50,7 +49,7 @@ public class SearchBookListFragment extends Fragment {
     ArrayList<FirebaseBook> mFirebaseBooks;
     RecycleViewScrollViewListener mRecycleViewScrollViewListener;
     String query = null;
-    PriorityQueue<LocationBook> priorityQueue;
+    LocationBasedBookList locationBasedBookList;
     Location mCurrentLocation;
     private RecyclerView recyclerView;
     // Firebase
@@ -83,7 +82,6 @@ public class SearchBookListFragment extends Fragment {
         // add book list
         mFirebaseBooks = new ArrayList<>();
 
-        priorityQueue = new PriorityQueue<>(10, new LocationComparator());
 
         recyclerView = (RecyclerView) availableBookListView.findViewById(R.id.home_pager_recycle_view);
         layoutManager = new LinearLayoutManager(getContext());
@@ -100,6 +98,7 @@ public class SearchBookListFragment extends Fragment {
 
         setCurrentLocation();
 
+        locationBasedBookList = new LocationBasedBookList(mCurrentLocation);
 
         return availableBookListView;
     }
@@ -130,20 +129,12 @@ public class SearchBookListFragment extends Fragment {
                     if (dataSnapshot.exists()) {
                         for(DataSnapshot snapshot: dataSnapshot.getChildren()){
                             FirebaseBook book = snapshot.getValue(FirebaseBook.class);
-                            Location loc = new Gson().fromJson(book.getLocationJson(), Location.class);
-                            priorityQueue.add(new LocationBook(mCurrentLocation.distanceTo(loc), book));
-                            //mBookListAdapter.add(book);
+                            locationBasedBookList.addBook(book);
                         }
 
-
-                        while(!priorityQueue.isEmpty()){
-                            LocationBook book = priorityQueue.remove();
-                            Log.d("BOOK:" , book.getDistance().toString());
-                            Integer dis = Math.round(book.getDistance()/1000);
-                            book.getBook().setLocationName(dis.toString() + " km, " +
-                                    "" + book.getBook().getLocationName());
-                            mBookListAdapter.add(book.getBook());
-
+                        List<FirebaseBook> books = locationBasedBookList.getAllBooks();
+                        for (FirebaseBook book : books) {
+                            mBookListAdapter.add(book);
                         }
 
                     } else {

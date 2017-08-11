@@ -36,7 +36,6 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 
-
 public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookListViewHolder> {
     private Context mContext;
     private List<FirebaseBook> mFirebaseBooks;
@@ -84,14 +83,14 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookLi
         notifyItemRangeRemoved(0, size);
     }
 
-    // search item click listener interface
-    public interface BookItemClickListener {
-        void onItemClick(View itemView, int position);
-    }
-
     // method to set SearchItemClickListener to this adapter from activity/fragment using it
     public void setBookItemClickListener(BookItemClickListener listener) {
         this.listener = listener;
+    }
+
+    // search item click listener interface
+    public interface BookItemClickListener {
+        void onItemClick(View itemView, int position);
     }
 
     public class BookListViewHolder extends RecyclerView.ViewHolder {
