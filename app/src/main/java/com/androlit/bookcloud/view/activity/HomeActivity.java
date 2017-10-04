@@ -27,6 +27,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -50,6 +51,7 @@ import com.androlit.bookcloud.view.fragment.AvailableBookListFragment;
 import com.androlit.bookcloud.view.fragment.MessageFragment;
 import com.androlit.bookcloud.view.fragment.MyBookFragment;
 import com.androlit.bookcloud.view.fragment.SearchBookListFragment;
+import com.androlit.bookcloud.view.listeners.RecycleViewScrollViewListener;
 import com.androlit.bookcloud.view.navigator.Navigator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -62,14 +64,20 @@ import java.util.Locale;
 
 import butterknife.ButterKnife;
 
+
 public class HomeActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener,
+        RecycleViewScrollViewListener {
 
     List<Fragment> mFragmentListOfViewpager;
+    FloatingActionButton fab;
     private FirebaseAuth mAuth;
     private Button mSignIn;
     private TextView mTvEmail;
     private TextView mTvFullName;
+    private SearchBookListFragment mSearchBookListFragment;
+    private boolean hasSearchFragment = false;
+    private TabLayout tabLayout;
     // viewpager
     private ViewPager mHomePager;
     private HomePagerAdapter mHomePagerAdapter;
@@ -88,28 +96,37 @@ public class HomeActivity extends AppCompatActivity
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
 
+
         // home pager view initializing
         mFragmentListOfViewpager = new ArrayList<>();
+        mFragmentListOfViewpager.add(new AvailableBookListFragment());
 
 
         // Get the intent, verify the action and get the query
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
+            mSearchBookListFragment = new SearchBookListFragment();
+            mFragmentListOfViewpager.add(mSearchBookListFragment);
+            hasSearchFragment = true;
             searchAvailableBooks(query);
-        }else{
-            mFragmentListOfViewpager.add(new AvailableBookListFragment());
-            mHomePagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), mFragmentListOfViewpager);
-            mHomePager = (ViewPager) findViewById(R.id.home_pager);
-            mHomePager.setAdapter(mHomePagerAdapter);
         }
+
+        mHomePager = (ViewPager) findViewById(R.id.home_pager);
+        mHomePagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), mFragmentListOfViewpager);
+        mHomePager.setAdapter(mHomePagerAdapter);
+        if (hasSearchFragment) {
+            mHomePager.setCurrentItem(1, true);
+        }
+
+        tabViewInitialize();
 
         initCurrentLocation();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -129,6 +146,24 @@ public class HomeActivity extends AppCompatActivity
         setNavigationView();
 
         mAuth = FirebaseAuth.getInstance();
+    }
+
+    private void tabViewInitialize() {
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        if (mFragmentListOfViewpager.size() > 1) {
+
+            tabLayout.setupWithViewPager(mHomePager);
+            for (int i = 0; i < tabLayout.getTabCount(); i++) {
+                tabLayout.getTabAt(i).setCustomView(R.layout.view_tab);
+            }
+
+            tabLayout.getTabAt(0).setText(R.string.current_book_list);
+            if (hasSearchFragment) {
+                tabLayout.getTabAt(1).setText(R.string.search_items);
+            }
+        } else {
+            tabLayout.setVisibility(View.GONE);
+        }
     }
 
     private void initCurrentLocation() {
@@ -152,13 +187,13 @@ public class HomeActivity extends AppCompatActivity
             String street = addresses.get(0).getAddressLine(0);
             String cityName = addresses.get(0).getAddressLine(1);
             String countryName = addresses.get(0).getAddressLine(2);
-            mCurrentLocationName = street + "," + cityName;
+            mCurrentLocationName = street;
 
             if(mCurrentLocationName != null){
                 preferences.edit().putString("locationName", mCurrentLocationName).apply();
             }
 
-            Snackbar.make((Toolbar) findViewById(R.id.toolbar), mCurrentLocationName, Snackbar.LENGTH_INDEFINITE).show();
+            Snackbar.make(findViewById(R.id.toolbar), mCurrentLocationName, Snackbar.LENGTH_INDEFINITE).show();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -176,12 +211,7 @@ public class HomeActivity extends AppCompatActivity
 //        a spinning progress wheel until your search returns. See android.net
 //        for a reference of network APIs and Creating a Progress Dialog
 //        for information about a to display a progress wheel.
-        SearchBookListFragment fragment = new SearchBookListFragment();
-        fragment.setQuery(query.toLowerCase());
-        mFragmentListOfViewpager.add(fragment);
-        mHomePagerAdapter = new HomePagerAdapter(getSupportFragmentManager(), mFragmentListOfViewpager);
-        mHomePager = (ViewPager) findViewById(R.id.home_pager);
-        mHomePager.setAdapter(mHomePagerAdapter);
+        mSearchBookListFragment.setQuery(query.toLowerCase());
     }
 
     private void setNavigationView() {
@@ -322,6 +352,15 @@ public class HomeActivity extends AppCompatActivity
             mTvEmail.setVisibility(View.GONE);
             mTvFullName.setVisibility(View.GONE);
             mSignIn.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onScrolling(int dy) {
+        if (dy > 0 && fab.isShown()) {
+            fab.hide();
+        } else if (dy < 0) {
+            fab.show();
         }
     }
 }
