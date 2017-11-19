@@ -2,7 +2,8 @@
 
 **Overview:**
 
-A project named “Android Application for Book Rent Sell and Exchange” is an android based application which will contribute to ease communication between book people want to buy and sell books. For an easily accessible book service this app can contribute digitally to the society.
+It’s is an android based application which will contribute to ease
+communication between peoples who wants to buy and sell books.
 
 
 **Motivation and Objectives:**
