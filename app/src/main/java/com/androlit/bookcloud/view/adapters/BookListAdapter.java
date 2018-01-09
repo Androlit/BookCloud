@@ -26,12 +26,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.data.model.FirebaseBook;
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
@@ -41,6 +43,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookLi
     private List<FirebaseBook> mFirebaseBooks;
 
     private BookItemClickListener listener;
+    private FirebaseAuth mAuth;
 
     public BookListAdapter(List<FirebaseBook> firebaseBooks, Context context) {
         mFirebaseBooks = firebaseBooks;
@@ -84,8 +87,9 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookLi
     }
 
     // method to set SearchItemClickListener to this adapter from activity/fragment using it
-    public void setBookItemClickListener(BookItemClickListener listener) {
+    public void setBookItemClickListener(BookItemClickListener listener, FirebaseAuth auth) {
         this.listener = listener;
+        mAuth = auth;
     }
 
     // search item click listener interface
@@ -103,16 +107,20 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookLi
 
         public BookListViewHolder(final View itemView) {
             super(itemView);
-            bookThumbs = (ImageView) itemView.findViewById(R.id.book_thumbs);
-            bookName = (TextView) itemView.findViewById(R.id.book_name);
-            author = (TextView) itemView.findViewById(R.id.author_name);
-            locationDistance = (TextView) itemView.findViewById(R.id.location_distance);
-            price = (TextView) itemView.findViewById(R.id.price_tag);
-            btnBuyNow = (Button) itemView.findViewById(R.id.btn_buy_now);
+            bookThumbs = itemView.findViewById(R.id.book_thumbs);
+            bookName = itemView.findViewById(R.id.book_name);
+            author = itemView.findViewById(R.id.author_name);
+            locationDistance = itemView.findViewById(R.id.location_distance);
+            price = itemView.findViewById(R.id.price_tag);
+            btnBuyNow = itemView.findViewById(R.id.btn_buy_now);
 
             btnBuyNow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (mAuth.getCurrentUser() == null) {
+                        Toast.makeText(mContext, "Login to buy!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     new MaterialDialog.Builder(mContext)
                             .title("Do You Want to Buy this book")
                             .content("This action will send message to user who has offered this book")

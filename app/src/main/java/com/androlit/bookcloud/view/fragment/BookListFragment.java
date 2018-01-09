@@ -16,11 +16,15 @@
 package com.androlit.bookcloud.view.fragment;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +34,7 @@ import com.androlit.bookcloud.R;
 import com.androlit.bookcloud.data.model.FirebaseBook;
 import com.androlit.bookcloud.data.model.Message;
 import com.androlit.bookcloud.data.model.UserConnection;
+import com.androlit.bookcloud.utils.LocationBasedBookList;
 import com.androlit.bookcloud.view.adapters.BookListAdapter;
 import com.androlit.bookcloud.view.listeners.RecycleViewScrollViewListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,11 +44,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
-public class AvailableBookListFragment extends Fragment implements
+public class BookListFragment extends Fragment implements
         BookListAdapter.BookItemClickListener {
     RecyclerView.LayoutManager layoutManager;
     BookListAdapter mBookListAdapter;
@@ -54,12 +63,31 @@ public class AvailableBookListFragment extends Fragment implements
     DatabaseReference mGlobalMessageReference;
     ChildEventListener mMessaseChildEventListener;
     RecycleViewScrollViewListener mRecycleViewScrollViewListener;
+    Location mCurrentLocation;
+    String query = null;
+    LocationBasedBookList locationBasedBookList;
     private RecyclerView recyclerView;
     // Firebase
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mBooksDatabaseReference;
     private ChildEventListener mChildEventListener;
     private ProgressDialog mProgressDialog;
+    private FirebaseAuth mAuth;
+
+    private void setCurrentLocation() {
+        SharedPreferences preferences = getActivity().getSharedPreferences("com.androlit.bookcloud",
+                Context.MODE_PRIVATE);
+        String json = preferences.getString("location", "");
+        Location location = new Gson().fromJson(json, Location.class);
+
+        if (location == null) {
+            mCurrentLocation = new Location("");
+            mCurrentLocation.setLatitude(23.793993);
+            mCurrentLocation.setLongitude(90.404272);
+        } else {
+            mCurrentLocation = location;
+        }
+    }
 
     @Nullable
     @Override
@@ -71,20 +99,22 @@ public class AvailableBookListFragment extends Fragment implements
         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mAuth = FirebaseAuth.getInstance();
         mBooksDatabaseReference = mFirebaseDatabase.getReference().child("books");
 
         // add book list
         mFirebaseBooks = new ArrayList<>();
 
         mProgressDialog = new ProgressDialog(getContext());
-        recyclerView = (RecyclerView) availableBookListView.findViewById(R.id.home_pager_recycle_view);
+        recyclerView = availableBookListView.findViewById(R.id.home_pager_recycle_view);
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         mBookListAdapter = new BookListAdapter(mFirebaseBooks, getContext());
-        mBookListAdapter.setBookItemClickListener(this);
+        mBookListAdapter.setBookItemClickListener(this, mAuth);
         recyclerView.setAdapter(mBookListAdapter);
 
+        locationBasedBookList = new LocationBasedBookList(mCurrentLocation);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -230,6 +260,50 @@ public class AvailableBookListFragment extends Fragment implements
         int comp = first.compareTo(second);
         if (comp < 0) return first + ";" + second;
         return second + ";" + first;
+    }
+
+    public void searchAndUpdate() {
+        if (mFirebaseDatabase == null) {
+            mFirebaseDatabase = FirebaseDatabase.getInstance();
+        }
+
+        Query fireQuery = mFirebaseDatabase.getReference().child("books")
+                .orderByChild("titleLowerCase")
+                .startAt(this.query); // equalTo()  , will make this exact search
+
+        if (fireQuery != null) {
+            fireQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            FirebaseBook book = snapshot.getValue(FirebaseBook.class);
+                            locationBasedBookList.addBook(book);
+                        }
+
+                        List<FirebaseBook> books = locationBasedBookList.getAllBooks();
+                        for (FirebaseBook book : books) {
+                            mBookListAdapter.add(book);
+                        }
+
+                    } else {
+                        // TODO: create a dialog that no results found
+                        // give user options to go home
+                        Log.d("SEARCH:", "NO Results Found.");
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+        }
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
     }
 
 }
